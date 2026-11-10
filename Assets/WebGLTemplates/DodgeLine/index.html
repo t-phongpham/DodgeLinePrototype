@@ -16,19 +16,19 @@
 <body>
   <main>
     <header><h1>DODGE LINE / MIST VALLEY</h1><button id="fullscreen">Fullscreen</button></header>
-    <div id="game">
-      <canvas id="unity-canvas" width="{{{ WIDTH }}}" height="{{{ HEIGHT }}}" tabindex="0" aria-label="Dodge Line game"></canvas>
+    <div id="game" oncontextmenu="return false;">
+      <canvas id="unity-canvas" width="{{{ WIDTH }}}" height="{{{ HEIGHT }}}" tabindex="0" aria-label="Dodge Line game" oncontextmenu="return false;"></canvas>
       <div id="loading"><strong>Entering Mist Valley...</strong><progress id="progress" max="1" value="0"></progress><span id="error"></span></div>
       <section id="closed" hidden aria-live="polite"><h2>Game closed</h2><p>Your browser kept this tab open. You can close it yourself, or reopen Dodge Line below.</p><button id="reopen">Play again</button></section>
     </div>
-    <footer><span>Mouse &amp; keyboard · 1/2/3 build · Space start · P pause</span><span>Five stages · Online leaderboard</span></footer>
+    <footer><span>Mouse &amp; keyboard · 1/2/3 build · Space start · P pause</span><span>Five stages · Online leaderboard · Web 2026.11.10.2</span></footer>
   </main>
   <dialog id="quit-dialog" aria-labelledby="quit-title" aria-describedby="quit-description">
     <h2 id="quit-title">Quit Dodge Line?</h2>
     <p id="quit-description">Close this game tab? If your browser keeps the tab open, the game will stop instead. Completed-stage progress stays saved in this browser.</p>
     <div class="actions"><button id="quit-cancel" autofocus>No, keep playing</button><button id="quit-confirm">Yes, quit</button></div>
   </dialog>
-  <script src="browser-controls.js"></script>
+  <script src="browser-controls.js?v=2026.11.10.2"></script>
   <script src="Build/{{{ LOADER_FILENAME }}}"></script>
   <script>
     window.dodgeLineReady = false;

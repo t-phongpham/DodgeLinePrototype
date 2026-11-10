@@ -1,5 +1,25 @@
 # Kiểm thử Dodge Line
 
+## Bổ sung chặn menu chuột phải — Web 2026.11.10.2
+
+Người dùng báo menu trình duyệt vẫn hiện trong khung thường dù HUD đã hiện Placement cancelled. Đã GET `index.html` và `browser-controls.js` từ Pages thật: cả hai trả200 và SHA256 khớp bản sửa Web UX đã commit. Điều này xác nhận file đang được host; không chứng minh tab đang mở của người dùng đã tải lại chúng. Edge profile sạch với code cũ đạt cả chuột phải thường/fullscreen (`TestResults/RightClick-2026-11-10/EdgeBefore`); chưa tái hiện đúng lỗi trong profile người dùng và chưa kết luận nguyên nhân.
+
+Bản mới chặn contextmenu ở window capture và trực tiếp canvas, thêm HTML oncontextmenu dự phòng, giữ toàn bộ pointer/mouse down/up cho Unity. Có query phiên bản cho JavaScript và footer **Web 2026.11.10.2** để nhận biết tab cũ. Không đổi C#, gameplay, map hoặc dữ liệu leaderboard.
+
+Build Web bằng Unity6000.6.7f1 thành công, Editor exit0 (`TestResults/RightClick-2026-11-10/build-web.log`), không thấy C# error/warning hoặc shader compilation error. Đã Prepare-Web; 7 file,44,065,790 bytes, SHA256 của toàn bộ `web/` khớp `Builds/Web` (`publication-check.json`). Chưa commit/push/deploy bản bổ sung thay người dùng.
+
+Kiểm tra thực tế bản build qua localhost bằng Chrome và Edge headless/SwiftShader/CDP, profile test riêng không dùng extension người dùng:
+
+- Chuột phải thật trên canvas ở chế độ thường bị preventDefault; hủy xây rồi click ô trống không mua thêm hoặc mất energy.
+- Vào fullscreen bằng nút thật: fullscreenElement=unity-canvas, parent vẫn là game; chuột phải tiếp tục bỏ chọn và chặn contextmenu. Không quy lỗi của người dùng cho reparent/fullscreen.
+- Giả lập một handler trên canvas gọi stopImmediatePropagation cho contextmenu: capture vẫn chặn default trước khi propagation bị dừng.
+- DOM contextmenu ngoài khung game không bị chặn; đã xem ảnh footer có đúng phiên bản mới.
+- Smoke menu/leaderboard/ô xây/combat/pause/retry và Quit/No/Esc/đóng player/Play again/đóng tab script được giữ trong công cụ kiểm tra.
+
+Kết quả Chrome ở `ChromeAfter/browser-check.json`, Edge ở `EdgeFinal/browser-check.json` trong thư mục kết quả trên: cả hai exit0, các assertion đều đạt, không uncaught JS/WASM exception. Lượt `EdgeAfter` chạy song song ban đầu so hash energy khi Preparation đã hết, income làm101→105 và gây false failure. Đã cô lập lại tình huống chuột phải bằng Retry và mua tháp thật trong Preparation mới, không thay đổi kinh tế runtime.
+
+Chưa thử trên tab/profile/extension của người dùng hoặc deploy bản mới lên Pages. Không chạy lại EditMode/PlayMode, build Windows hoặc toàn bộ5 màn vì không đổi gameplay. Hướng dẫn nhận biết phiên bản, commit và thử InPrivate nằm ở [WEB_UPDATE_GUIDE.md](docs/WEB_UPDATE_GUIDE.md).
+
 ## Web UX — 2026-11-10
 
 Thêm README cho người chơi, hộp thoại Quit Web qua bridge `.jslib`, dừng Unity nếu trình duyệt chặn đóng tab, nút Play again, và chặn contextmenu riêng trong vùng game. Không đổi luật chiến đấu, chỉ số, map hoặc phiên bản leaderboard v2. Windows giữ Application.Quit; đợt này không build lại EXE.

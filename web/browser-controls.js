@@ -8,8 +8,16 @@
     canvas.focus();
   };
 
-  // Cancel only the browser menu: Unity still receives right-button down/up to deselect.
-  document.getElementById('game').addEventListener('contextmenu', event => event.preventDefault());
+  const game = document.getElementById('game');
+  window.dodgeLineBrowserControlsVersion = '2026.11.10.2';
+  // Capture before Unity/other page handlers can stop bubbling. Test the canvas
+  // itself too, so this stays valid if a fullscreen host changes its ancestors.
+  // Never cancel mouse/pointer down/up: Unity needs them for right-click deselect.
+  window.addEventListener('contextmenu', event => {
+    const path = event.composedPath();
+    if (path.includes(canvas) || path.includes(game)) event.preventDefault();
+  }, { capture: true, passive: false });
+  canvas.addEventListener('contextmenu', event => event.preventDefault(), { capture: true, passive: false });
   window.dodgeLineQuitState = 'playing';
   window.dodgeLineRequestQuit = () => {
     if (window.dodgeLineQuitState !== 'playing') return;

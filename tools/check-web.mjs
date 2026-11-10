@@ -92,6 +92,7 @@ try {
   if (!report.loaded) throw new Error('Unity Web did not initialize within 90 seconds.');
   // The Unity startup promise resolves before its splash-screen fade finishes.
   await sleep(6000); await screenshot('01-menu'); report.steps.push('Unity initialized; main menu rendered after splash');
+  report.browserControlsVersion = await evaluate('window.dodgeLineBrowserControlsVersion ?? "legacy"');
   // Exercise the actual Unity button -> IL2CPP -> .jslib -> HTML dialog bridge.
   await click(1000, 631);
   report.quitDialogOpened = await evaluate('document.getElementById("quit-dialog").open && window.dodgeLineQuitState === "confirming"');
@@ -112,6 +113,36 @@ try {
   if (!report.overlayBlocksStageClick) throw new Error('Clicking behind leaderboard changed the rendered scene; inspect overlay screenshots.');
   report.steps.push('Leaderboard opened; actual UGS HTTP responses recorded; underlying stage click blocked');
   await click(1145, 61); await click(400, 195); await sleep(1500); await screenshot('04-stage1');
+  // Fullscreen has its own browser event path; a normal-window check is insufficient.
+  await evaluate('window.dodgeLineFullscreenContext=[];window.addEventListener("contextmenu",e=>window.dodgeLineFullscreenContext.push({target:e.target.id,prevented:e.defaultPrevented}))');
+  await clickElement('fullscreen');
+  for (let i = 0; i < 30 && !await evaluate('!!document.fullscreenElement'); i++) await sleep(100);
+  report.fullscreenEntered = await evaluate('!!document.fullscreenElement');
+  report.fullscreenElement = await evaluate('document.fullscreenElement?.id');
+  report.fullscreenCanvasParent = await evaluate('document.getElementById("unity-canvas").parentElement.id');
+  if (!report.fullscreenEntered) throw new Error('Fullscreen button did not enter browser fullscreen.');
+  await sleep(500); await click(125, 128);
+  const fullscreenEnergy = await energySnapshot('03a-fullscreen-energy-before');
+  await click(580, 270, 'right'); await click(940, 270);
+  report.fullscreenRightClickDeselects = fullscreenEnergy === await energySnapshot('03b-fullscreen-energy-after');
+  report.fullscreenContextMenuPrevented = await evaluate('window.dodgeLineFullscreenContext.some(e=>e.target === "unity-canvas" && e.prevented)');
+  await screenshot('03c-fullscreen-deselected');
+  if (!report.fullscreenRightClickDeselects || !report.fullscreenContextMenuPrevented)
+    throw new Error('Fullscreen right-click opened a browser menu or failed to deselect.');
+  await call('Runtime.evaluate', { expression: 'document.exitFullscreen()', awaitPromise: true });
+  await sleep(500);
+  // Reset the preparation clock so later energy comparisons cannot cross combat income.
+  await key('r'); await sleep(500);
+  report.steps.push('Entered actual browser fullscreen; right-click deselected without spending and contextmenu was prevented; returned to windowed play');
+  report.captureSurvivesStoppedPropagation = await evaluate(`(() => {
+    const canvas = document.getElementById('unity-canvas');
+    const block = event => event.stopImmediatePropagation();
+    canvas.addEventListener('contextmenu', block, {capture:true,once:true});
+    const event = new MouseEvent('contextmenu', {bubbles:true,cancelable:true});
+    canvas.dispatchEvent(event);
+    return event.defaultPrevented;
+  })()`);
+  if (!report.captureSurvivesStoppedPropagation) throw new Error('A canvas handler stopped propagation before the context menu was cancelled.');
   // Use actual IMGUI buttons, browser mouse and keyboard; no injected game state.
   await click(125, 128);
   const startingEnergy = await energySnapshot('04a-before-placement-energy');
@@ -122,6 +153,9 @@ try {
   report.padPlacementSpentEnergy = startingEnergy !== await energySnapshot('04e-paid-pad-energy');
   if (!report.padPlacementSpentEnergy) throw new Error('Clicking inside a valid pad did not spend energy.');
   await evaluate('window.dodgeLineContextEvents=[];document.addEventListener("contextmenu",e=>window.dodgeLineContextEvents.push({target:e.target.id,prevented:e.defaultPrevented}))');
+  // Start a fresh preparation window for this independent scenario. Slow software
+  // rendering/screenshot capture must not turn combat income into a false failure.
+  await key('r'); await sleep(500); await click(125, 128); await click(580, 270);
   const paidEnergy = await energySnapshot('04f-before-deselect-energy');
   await click(580, 270, 'right');
   await click(940, 270); // Another empty, affordable gold pad: must inspect, never build.

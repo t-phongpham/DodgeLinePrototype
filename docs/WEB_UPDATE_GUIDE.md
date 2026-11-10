@@ -10,6 +10,20 @@
 
 Bridge WebGL nằm ở `Assets/Plugins/WebGL/DodgeLineBrowser.jslib`; HTML và JavaScript ở `Assets/WebGLTemplates/DodgeLine/`. File trong `web/` là đầu ra build, không sửa trực tiếp vì lần build sau sẽ ghi đè.
 
+### Bản sửa chuột phải tiếp theo — Web 2026.11.10.2
+
+Chặn contextmenu ở capture phase trên window và trực tiếp trên canvas; HTML cũng có oncontextmenu dự phòng. Không chặn pointer/mouse down/up, nên input bỏ chọn của Unity vẫn nhận bình thường. Phạm vi chặn vẫn chỉ là khung game/canvas. JavaScript có query phiên bản để tránh dùng lại script cũ sau deploy; số **Web 2026.11.10.2** hiện ở footer.
+
+Website đã phát đúng file của lượt sửa đầu khi người dùng báo vẫn có menu; điều này không chứng minh tab đang mở của người dùng đã tải lại file đó. Kiểm tra Edge với profile sạch ở chế độ thường và fullscreen chưa tái hiện lỗi của ảnh. Không kết luận nguyên nhân là cache, fullscreen hoặc extension nếu chưa kiểm tra tab thực tế.
+
+Sau khi push bản này, đóng tab game cũ, mở lại URL Pages và kiểm tra footer có **Web 2026.11.10.2**. Nếu chưa có, chờ Actions xanh rồi Ctrl+Shift+R. Nếu vẫn có menu, thử InPrivate/Incognito không bật extension và gửi ảnh footer, URL, tên/phiên bản trình duyệt. Không cần xóa dữ liệu website hoặc tiến trình đang lưu. Cửa sổ riêng tư dùng vùng lưu khác nên có thể chỉ mở màn1, phù hợp để thử chuột phải.
+
+Tên commit cho bản sửa này:
+
+```text
+Fix Web context menu capture and add fullscreen input checks
+```
+
 ## Commit bản đã chuẩn bị
 
 1. Mở **GitHub Desktop**, chọn repository **DodgeLinePrototype**, kiểm tra **Current branch: main** và đường dẫn `C:\DodgeLinePrototype`.
