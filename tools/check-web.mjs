@@ -152,7 +152,7 @@ try {
   await click(590, 270); await screenshot('04d-pad-placement');
   report.padPlacementSpentEnergy = startingEnergy !== await energySnapshot('04e-paid-pad-energy');
   if (!report.padPlacementSpentEnergy) throw new Error('Clicking inside a valid pad did not spend energy.');
-  await evaluate('window.dodgeLineContextEvents=[];document.addEventListener("contextmenu",e=>window.dodgeLineContextEvents.push({target:e.target.id,prevented:e.defaultPrevented}))');
+  await evaluate('window.dodgeLineContextEvents=[];window.dodgeLineRightMouseEvents=[];document.addEventListener("contextmenu",e=>window.dodgeLineContextEvents.push({target:e.target.id,prevented:e.defaultPrevented}));for(const type of ["mousedown","mouseup"])document.addEventListener(type,e=>{if(e.button===2)window.dodgeLineRightMouseEvents.push({type:e.type,prevented:e.defaultPrevented})})');
   // Start a fresh preparation window for this independent scenario. Slow software
   // rendering/screenshot capture must not turn combat income into a false failure.
   await key('r'); await sleep(500); await click(125, 128); await click(580, 270);
@@ -161,9 +161,28 @@ try {
   await click(940, 270); // Another empty, affordable gold pad: must inspect, never build.
   report.rightClickDeselects = paidEnergy === await energySnapshot('04g-after-deselect-energy');
   report.canvasContextMenuPrevented = await evaluate('window.dodgeLineContextEvents.some(e=>e.target === "unity-canvas" && e.prevented)');
+  report.rightMouseDefaultsPrevented = await evaluate('["mousedown","mouseup"].every(type=>window.dodgeLineRightMouseEvents.some(e=>e.type === type && e.prevented))');
   report.outsideContextMenuAllowed = await evaluate('document.querySelector("header h1").dispatchEvent(new MouseEvent("contextmenu", {bubbles:true,cancelable:true}))');
   if (!report.rightClickDeselects || !report.canvasContextMenuPrevented || !report.outsideContextMenuAllowed)
     throw new Error('Right-click deselection or scoped context-menu handling failed.');
+  if (report.browserControlsVersion === '2026.11.11.1' && !report.rightMouseDefaultsPrevented)
+    throw new Error('Right mouse down/up browser defaults were not prevented.');
+  if (new URL(url).searchParams.get('inputDebug') === '1') {
+    const text = await evaluate('document.querySelector("#input-diagnostics textarea").value');
+    const inputReport = JSON.parse(text);
+    writeFileSync(path.join(output, 'input-diagnostics.json'), JSON.stringify(inputReport, null, 2));
+    report.inputDiagnosticsRecorded = ['mousedown','mouseup','contextmenu'].every(type => inputReport.events.some(e => e.type === type && e.inGame && e.trusted && e.preventedAfter));
+    if (!report.inputDiagnosticsRecorded) throw new Error('Optional input diagnostic did not record trusted, prevented events.');
+    // Copy report uses the native Clipboard API from an actual user click.
+    await call('Runtime.evaluate', {expression:'document.querySelector("#input-diagnostics button").scrollIntoView({block:"center"})'});
+    const point = await evaluate('(()=>{const r=document.querySelector("#input-diagnostics button").getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()');
+    await call('Input.dispatchMouseEvent', { type:'mousePressed',...point,button:'left',clickCount:1 });
+    await call('Input.dispatchMouseEvent', { type:'mouseReleased',...point,button:'left',clickCount:1 }); await sleep(300);
+    report.inputDiagnosticsCopyStatus = await evaluate('document.querySelector("#input-diagnostics [role=status]").textContent');
+    if (!report.inputDiagnosticsCopyStatus) throw new Error('Diagnostic Copy report button did not respond.');
+    await screenshot('04-input-diagnostic');
+    await evaluate('window.scrollTo(0,0)'); await sleep(100);
+  }
   // Selecting an existing tower and then right-clicking must also remove its range ring.
   await click(580, 270); await mouseMove(5, 5); await screenshot('04h-selected-tower');
   await click(580, 270, 'right'); await mouseMove(5, 5); await screenshot('04i-deselected-tower');

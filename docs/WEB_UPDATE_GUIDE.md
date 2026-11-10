@@ -5,10 +5,30 @@
 - README giới thiệu game, luật chơi, điều khiển, chiến dịch và leaderboard.
 - Quit game trên Web mở hộp thoại xác nhận riêng của website. No hoặc Esc quay lại menu. Yes gọi `window.close()` trực tiếp từ click người dùng.
 - Trình duyệt có thể từ chối đóng tab, nhất là tab mở thủ công và có lịch sử điều hướng. Khi đó Unity player được dừng bằng `Quit()` và hiện Game closed / Play again. Không thể bảo đảm website được phép đóng mọi tab. Tham khảo [MDN Window.close](https://developer.mozilla.org/en-US/docs/Web/API/Window/close).
-- Chuột phải trong khung game vẫn gửi input đến Unity để hủy xây/bỏ chọn; chỉ chặn sự kiện `contextmenu`. Chuột phải ngoài khung game vẫn dùng menu trình duyệt.
+- Chuột phải trong khung game vẫn gửi input đến Unity để hủy xây/bỏ chọn; chặn hành vi mặc định của menu và nút phải. Chuột phải ngoài khung game vẫn dùng menu trình duyệt.
 - Windows giữ Application.Quit; không cần bản xác nhận HTML.
 
 Bridge WebGL nằm ở `Assets/Plugins/WebGL/DodgeLineBrowser.jslib`; HTML và JavaScript ở `Assets/WebGLTemplates/DodgeLine/`. File trong `web/` là đầu ra build, không sửa trực tiếp vì lần build sau sẽ ghi đè.
+
+### Theo dõi lỗi Edge tiếp diễn — Web 2026.11.11.1
+
+Người dùng xác nhận đúng URL Pages, footer2026.11.10.2 và InPrivate vẫn có menu. Chưa xác định nguyên nhân; không coi profile sạch/headless đạt là bằng chứng lỗi trên tab người dùng đã hết.
+
+Bản2026.11.11.1 bổ sung preventDefault cho **right mousedown/mouseup/auxclick** trong khung game, ngoài contextmenu. Không stopPropagation; không cancel pointerdown vì có thể làm mất compatibility mouse events. Unity vẫn phải nhận chuột phải để bỏ chọn. Không chặn nút trái hoặc nút giữa.
+
+Nếu menu vẫn xuất hiện sau khi deploy bản mới, mở:
+
+<https://t-phongpham.github.io/DodgeLinePrototype/?inputDebug=1>
+
+Chọn Bow ở màn1, click phải ở giữa khung game, đóng menu trình duyệt nếu có. Cuộn xuống **Right-click check**, bấm **Copy report**, dán vào chat. Panel ghi phiên bản, URL không query, user-agent và tối đa16 sự kiện gần nhất: target, loại event, trusted/cancelable/defaultPrevented, nút chuột và modifier. Không ghi token, PlayerPrefs, tên hay điểm người chơi; không tự gửi báo cáo qua mạng. Bỏ `?inputDebug=1` để trở về giao diện thường. Không cần F12, nhập code vào Console hoặc xóa save.
+
+Tên commit cho bản bổ sung này:
+
+```text
+Guard Edge right mouse defaults and add opt-in input diagnostics
+```
+
+Đợt này chỉ cần commit các file đang thay đổi rồi Push origin; `web/` đã được chuẩn bị sau build. Kết quả và giới hạn kiểm thử nằm trong [TEST_REPORT.md](../TEST_REPORT.md).
 
 ### Bản sửa chuột phải tiếp theo — Web 2026.11.10.2
 

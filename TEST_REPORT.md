@@ -1,5 +1,21 @@
 # Kiểm thử Dodge Line
 
+## Edge tiếp tục báo lỗi — Web 2026.11.11.1
+
+Người dùng xác nhận đúng URL `https://t-phongpham.github.io/DodgeLinePrototype/`, footer2026.11.10.2 và **InPrivate cũng vẫn hiện menu**. Chưa xác định nguyên nhân; không kết luận lỗi do cache/extension. GET hai file Pages trả200, SHA256 khớp bản đang commit. Edge157.0.4341.42 headless/SwiftShader chạy trực tiếp URL Pages qua CDP đạt toàn bộ smoke check (`TestResults/RightClick-2026-11-11/EdgePages`, exit0, không uncaught JS/WASM exception).
+
+**Giới hạn quan trọng:** các test này đo DOM defaultPrevented và hành vi game. Headless không xác minh việc hiển thị menu native trên tab Edge người dùng. Không coi chúng là bằng chứng lỗi được báo đã hết.
+
+Bản2026.11.11.1 bổ sung chặn browser default cho right mousedown/mouseup/auxclick trong vùng game, giữ contextmenu guard. Không stopPropagation và không cancel pointerdown. Chế độ `?inputDebug=1` thêm panel dưới game để ghi tối đa16 event và Copy report; mặc định không có panel. Báo cáo chỉ có version/path/user-agent/event flags, không đọc save/token và không tự gửi mạng.
+
+Unity6000.6.7f1 build Web thành công (`build-web.log`, Editor exit0); không có C# error/warning hoặc shader compilation error được tìm thấy. Đã Prepare-Web; gameplay/C#/Windows EXE không thay đổi.
+
+Edge localhost với giao diện thường đạt (`EdgeNew/browser-check.json`, exit0): input chuột phải vẫn hủy xây, energy không mất khi click ô khác sau hủy; mousedown/up/default contextmenu được chặn; fullscreen vẫn hoạt động; menu ngoài khung không bị chặn. Menu/leaderboard/ô xây/start wave/pause/retry và toàn bộ nhánh Quit vẫn đạt. Không uncaught JS/WASM exception. Đây vẫn là kiểm thử headless, không phải xác nhận trên tab người dùng.
+
+Đã chạy thêm cùng bộ kiểm tra trên URL localhost có `?inputDebug=1` (`EdgeDiagnostic/browser-check.json`, exit0): panel ghi đúng mousedown/up/contextmenu trusted và preventedAfter=true; click Copy report thật trả trạng thái **Copied. Paste it into the chat.**; không có uncaught JS/WASM exception. Đã xem screenshot `04-input-diagnostic.png`. `input-diagnostics.json` là ví dụ dữ liệu cần lấy từ tab người dùng. Sau bật chẩn đoán, toàn bộ ca Quit và input vẫn đạt. Đối chiếu xuất bản7 file,44,068,782 bytes: SHA256 của `web/` khớp `Builds/Web` (`publication-check.json`).
+
+Hướng dẫn dùng báo cáo input và tên commit: [WEB_UPDATE_GUIDE.md](docs/WEB_UPDATE_GUIDE.md). Chưa deploy bản2026.11.11.1 thay người dùng và chưa xác nhận lỗi trên profile/tab người dùng đã được giải quyết. Không chạy lại EditMode/PlayMode, chiến dịch5 màn hoặc Windows vì thay đổi chỉ nằm ở Web shell.
+
 ## Bổ sung chặn menu chuột phải — Web 2026.11.10.2
 
 Người dùng báo menu trình duyệt vẫn hiện trong khung thường dù HUD đã hiện Placement cancelled. Đã GET `index.html` và `browser-controls.js` từ Pages thật: cả hai trả200 và SHA256 khớp bản sửa Web UX đã commit. Điều này xác nhận file đang được host; không chứng minh tab đang mở của người dùng đã tải lại chúng. Edge profile sạch với code cũ đạt cả chuột phải thường/fullscreen (`TestResults/RightClick-2026-11-10/EdgeBefore`); chưa tái hiện đúng lỗi trong profile người dùng và chưa kết luận nguyên nhân.
