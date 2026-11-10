@@ -1,5 +1,13 @@
 # Kiểm thử Dodge Line
 
+## Báo cáo input từ tab người dùng — 2026-11-11
+
+Đã nhận JSON thực tế của Web2026.11.11.1 trên đúng URL Pages, Edge157, không fullscreen. Có3 chuỗi bấm: tổng9 event mousedown/up/auxclick, tất cả target=unity-canvas, inGame/trusted/cancelable=true, button2, modifier=false, preventedBefore=false và preventedAfter=true. **Không có contextmenu** trong cả9 event; buffer16 chưa đầy nên không thể giải thích bằng việc event cũ đã bị đẩy khỏi buffer. Bản tóm tắt dữ liệu người dùng: `TestResults/RightClick-2026-11-11/UserInputSummary.json` (ignored; đây không phải kết quả tái hiện bằng tool).
+
+Điều này xác nhận handler guard có chạy và hủy default của các event đã nhận. Chưa xác định được thành phần mở menu native; không được suy ra chỉ từ dữ liệu này rằng JavaScript đã chặn được menu đang hiển thị, hoặc Edge không phát event ở mọi tầng. **Người dùng xác nhận Mouse Gestures đã tắt sẵn nhưng menu vẫn hiện**, nên giả thuyết này bị loại trừ trong cấu hình được báo. **Cùng URL và thao tác thực trên Chrome không hiện menu**, theo xác nhận người dùng. Phạm vi lỗi hiện được khoanh vào Edge trên máy này, chưa xác nhận root cause; không lặp lại headless và coi đó là tái hiện menu native. Không sửa runtime hoặc tạo thêm Web build trong lượt phân tích báo cáo này.
+
+Đã mở Settings bằng Edge157 profile test riêng và đọc nhãn UI qua CDP, không sửa cài đặt người dùng: `edge://settings/appearance/contextMenus` chỉ có mini-menu text/video; `edge://settings/appearance/browserBehavior` có Mouse gesture và Enable Visual Search/Show Visual Search in context menu/Show hover menu on image hover. Kết quả `edge-settings-labels.json` trong thư mục test trên. Đã đề nghị thử tắt tạm Enable Visual Search để phân biệt bộ xử lý ảnh của Edge; đây vẫn là giả thuyết, chưa có xác nhận A/B. Không chỉnh registry hoặc reset trình duyệt.
+
 ## Edge tiếp tục báo lỗi — Web 2026.11.11.1
 
 Người dùng xác nhận đúng URL `https://t-phongpham.github.io/DodgeLinePrototype/`, footer2026.11.10.2 và **InPrivate cũng vẫn hiện menu**. Chưa xác định nguyên nhân; không kết luận lỗi do cache/extension. GET hai file Pages trả200, SHA256 khớp bản đang commit. Edge157.0.4341.42 headless/SwiftShader chạy trực tiếp URL Pages qua CDP đạt toàn bộ smoke check (`TestResults/RightClick-2026-11-11/EdgePages`, exit0, không uncaught JS/WASM exception).

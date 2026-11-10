@@ -1,290 +1,316 @@
-# GAME DESIGN DOCUMENT — DODGE LINE
+# GAME DESIGN DOCUMENT — DODGE LINE: MIST VALLEY
 
-**Bản mô tả game đang được triển khai — cập nhật 2026-11-10, bộ luật ô xây v2.**
+**Ngày cập nhật:** 11/11/2026. **Phạm vi:** cơ chế đang được hiện thực trong repo, chiến dịch một người chơi gồm năm màn.
 
-Tài liệu này phản ánh code runtime, scene và data asset hiện tại của chiến dịch solo. Các thông số được đối chiếu với asset bằng Unity; hành vi được đối chiếu với script và test. Đây là thiết kế của bản đang chơi được, không phải danh sách tính năng đã hứa nhưng chưa làm. Cách mở, chỉnh và build project nằm ở [SOLO_GAME_GUIDE.md](SOLO_GAME_GUIDE.md); bằng chứng kiểm thử nằm ở [TEST_REPORT.md](../TEST_REPORT.md).
+Bố cục tham khảo tài liệu *Game-Design-Document-Template.pdf* do người dùng cung cấp. Các đề mục được giữ theo template và diễn giải phù hợp với game thủ thành. Thông số được đối chiếu với code, data asset và scene; hướng dẫn vận hành và báo cáo kiểm thử được dẫn riêng ở cuối tài liệu.
 
-## 1. Tổng quan
+## 1. Game Name — Tên game
 
-**Thể loại:** tactical tower defense 2D, camera cố định nhìn từ trên xuống, điều khiển chuột và bàn phím, có đầu ra Windows PC và Web desktop.
+**Dodge Line — Mist Valley**.
 
-**Ý tưởng chính:** bảo vệ một tiền đồn trong Mist Valley bằng Thorn Bow, Dust Cannon và Wire Trap. Enemy đi theo đường định sẵn. Retreat Wisp dự đoán va chạm của đạn đang bay, cảnh báo rồi có thể lùi trên chính tuyến đã đi. Enemy tới căn cứ không biến mất: chúng dừng tại mép căn cứ và tiếp tục đánh cho tới khi bị tiêu diệt.
+Người chơi bảo vệ một tiền đồn bằng cách xây phòng thủ dọc đường tiến quân của quái. Điểm đặc trưng là Retreat Wisp có thể dự đoán nguy hiểm từ đạn đang bay và lùi tránh trên chính tuyến đường đó.
 
-**Trải nghiệm cần tạo:** người chơi vừa chặn lính giữa đường, vừa giữ hỏa lực ở tuyến cuối. Tốc độ projectile và chuyển động thật quyết định hit/miss; cảnh báo né không tạo miễn sát thương. Vị trí đặt tháp, cụm enemy, slow và thời điểm nâng cấp cùng ảnh hưởng kết quả.
+## 2. Genre — Thể loại
 
-**Nội dung hiện có:** một người chơi, năm màn, một căn cứ mỗi màn, ba loại enemy, hai loại tháp nâng tới cấp 3 và một loại trap. Có menu, hướng dẫn, chọn/mở khóa màn, pause, retry, kết quả, sao và điểm cao lưu cục bộ. Module network là leaderboard HTTPS: đăng nhập ẩn danh, gửi best score, Top 10/hạng cá nhân, hàng đợi điểm và retry. Cấu hình bảng Unity Cloud theo mục 14; trạng thái kiểm chứng dịch vụ được ghi trong TEST_REPORT.md.
+Thủ thành chiến thuật 2D thời gian thực, chia theo wave, với camera nhìn từ trên xuống. Người chơi quản lý vị trí phòng thủ, energy và thời điểm nâng cấp; các công trình tự chọn mục tiêu và chiến đấu.
 
-**Ngoài bản hiện tại:** Shadow Matriarch hoặc boss khác; âm thanh; sprite animation đi/bắn/chết đầy đủ; controller/touch; cloud save tiến trình; menu cài đặt và hệ thống tutorial theo từng wave. Thiết kế chỉ có một người điều khiển mỗi trận; các người chơi cạnh tranh gián tiếp qua bảng điểm.
+## 3. Game Elements — Hoạt động chính
 
-## 2. Vòng chơi, điều khiển và màn hình
+- Chọn ô xây để tận dụng tầm bắn và giữ hỏa lực gần căn cứ.
+- Kết hợp Thorn Bow bắn đơn, Dust Cannon gây sát thương vùng và Wire Trap làm chậm.
+- Quan sát loại quái, dấu cảnh báo của Wisp và tình trạng căn cứ để quyết định chi tiêu.
+- Chọn giữa xây thêm, nâng cấp hoặc bán công trình để phân phối lại energy.
+- Hoàn thành các màn, cải thiện số sao và cạnh tranh điểm tốt nhất trên leaderboard.
 
-### 2.1 Vòng chơi
+## 4. Player — Người chơi
 
-```mermaid
-flowchart LR
-    M[Menu / chọn màn đã mở] --> P[Preparation: 15 giây]
-    P --> C[Combat: spawn, xây, bắn, né, slow, đánh base]
-    C --> W{Hết lịch spawn và không còn enemy?}
-    W -->|Chưa| C
-    W -->|Có, còn wave| P
-    W -->|Có, wave cuối| V[Victory: lưu kết quả, mở màn kế]
-    C -->|Base HP bằng 0| D[Defeat]
-    V --> N[Màn tiếp / Retry / Menu]
-    D --> R[Retry / Menu]
+**Một người điều khiển mỗi trận.** Người chơi đóng vai trò chỉ huy phòng thủ, không có nhân vật di chuyển trực tiếp trên bản đồ. HP của căn cứ là điều kiện sống còn của trận.
+
+Các người chơi có thể so sánh kết quả qua leaderboard online. Combat vẫn được mô phỏng độc lập trên từng máy; không có co-op hoặc đồng bộ trận đấu giữa người chơi.
+
+## 5. Technical Specs — Thông số kỹ thuật
+
+| Đề mục trong template | Thiết kế hiện tại |
+| --- | --- |
+| Technical Form | Đồ họa 2D; sprite cho môi trường, căn cứ, quái và phòng thủ; hình đơn giản cho đạn và phản hồi chiến đấu |
+| View | Camera trực giao, nhìn từ trên xuống, không có thao tác zoom/pan của người chơi |
+| Platform | Windows PC và Web desktop; bản Web hiện dùng Chrome để chơi/trình bày |
+| Language | C# cho gameplay; JavaScript cho tích hợp với trình duyệt |
+| Device | Máy tính có chuột và bàn phím; chưa có điều khiển cảm ứng hoặc controller |
+| Engine | Unity 6000.6.7f1, URP 2D, Input System, Physics2D và IMGUI |
+| Network | Unity Gaming Services Authentication và Leaderboards qua HTTPS/JSON |
+
+## 6. Game Play — Trải nghiệm chơi
+
+Người chơi bắt đầu một màn với căn cứ 20 HP và 150 energy. Trong 15 giây chuẩn bị, người chơi đặt Bow vào các vòng vàng và đặt Trap lên ô đường hợp lệ. Khi wave bắt đầu, Runner lao về tiền đồn, Wisp có thể cảnh báo rồi lùi trước một đường đạn nguy hiểm, còn Iron Guard tiến chậm nhưng chịu đòn tốt nhờ HP và giáp. Người chơi dùng tiền tích lũy trong trận để bổ sung phòng thủ và nâng cấp các tháp đang hoạt động. Quái chạm căn cứ sẽ đứng lại đánh liên tục, buộc người chơi duy trì khả năng tiêu diệt ở tuyến cuối. Vượt qua mọi wave khi căn cứ còn HP sẽ hoàn thành màn, nhận sao và mở màn tiếp theo.
+
+### 6.1. Game Play Outline — Trình tự chơi
+
+#### 6.1.1. Opening the game application — Bắt đầu
+
+Game mở ở menu chiến dịch, hiển thị năm màn cùng trạng thái mở khóa, sao và điểm cao nhất đã lưu. Màn 1 luôn có sẵn. Chọn một màn đã mở để bắt đầu trận mới tại màn đó.
+
+#### 6.1.2. Game options — Lựa chọn
+
+Menu cung cấp chọn màn, hướng dẫn chơi, leaderboard và thoát game. Trong trận có tạm dừng, tiếp tục, chơi lại và quay về menu. Bản hiện tại không có lựa chọn độ khó, cấu hình âm thanh hoặc chế độ chơi khác.
+
+#### 6.1.3. Story synopsis — Bối cảnh
+
+Mist Valley là một thung lũng rừng tối với các lối mòn dẫn tới tiền đồn. Người chơi phải giữ tuyến phòng thủ trước những đợt sinh vật tiến vào. Bối cảnh được thể hiện qua môi trường và các màn; chưa có hội thoại, cutscene hoặc cốt truyện phân nhánh.
+
+#### 6.1.4. Modes — Chế độ
+
+Một chiến dịch single-player gồm năm màn theo thứ tự. Màn đã hoàn thành có thể chơi lại để cải thiện sao và điểm. Leaderboard là tính năng so sánh kết quả của chiến dịch, không phải một chế độ combat riêng.
+
+#### 6.1.5. Game elements — Thành phần trong trận
+
+Một căn cứ, một hoặc hai tuyến đường định sẵn, các ô xây tháp, ba loại phòng thủ và ba loại quái. Energy được dùng chung cho mọi giao dịch trong màn. Đạn bay và va chạm thật quyết định sát thương; một lần Wisp bắt đầu né không đồng nghĩa đạn chắc chắn trượt.
+
+#### 6.1.6. Game levels — Các màn chơi
+
+| Màn | Bố cục | Wave | Ô xây tháp | Tổng quái | Trọng tâm chiến thuật |
+| --- | --- | ---: | ---: | ---: | --- |
+| 1 — Forest Road | Một đường thẳng | 6 | 5 | 68 | Làm quen Bow, Trap, nâng cấp và phòng thủ gần căn cứ |
+| 2 — Twilight Crossing | Hai đường song song | 8 | 8 | 166 | Mở Dust Cannon, bố trí hỏa lực bao phủ hai tuyến |
+| 3 — Ancient Garden | Một đường gấp khúc chữ S | 8 | 6 | 163 | Tận dụng khúc cua và thời gian quái đi trong tầm bắn |
+| 4 — Amber Quarry | Hai đường ngoài rẽ vào trong | 9 | 8 | 232 | Phân phối hỏa lực giữa chặn sớm và giữ tuyến cuối |
+| 5 — Moonlit Sanctuary | Hai đường zíc zắc có vị trí rẽ khác nhau | 10 | 7 | 301 | Kết hợp chia tuyến, sát thương vùng, slow và nâng cấp |
+
+Toàn chiến dịch có **41 wave và 930 quái**. Các tuyến cùng dẫn đến một căn cứ; không tự hợp nhất hoặc đổi đường trong trận.
+
+Ảnh bố cục: [màn 1](../DebugCaptures/Campaign_Level1.png), [màn 2](../DebugCaptures/Campaign_Level2.png), [màn 3](../DebugCaptures/Campaign_Level3.png), [màn 4](../DebugCaptures/Campaign_Level4.png), [màn 5](../DebugCaptures/Campaign_Level5.png).
+
+#### 6.1.7. Player’s controls — Điều khiển
+
+Chuột dùng để xây và chọn công trình; phím tắt dùng để đổi loại phòng thủ, nâng cấp, bán, bắt đầu wave và điều khiển phiên chơi. Bảng phím cụ thể nằm ở mục **8.5.2**.
+
+#### 6.1.8. Winning — Chiến thắng
+
+Hoàn thành wave cuối khi toàn bộ quái đã bị tiêu diệt và căn cứ còn ít nhất 1 HP. Nhận thưởng clear wave trước khi chốt điểm và sao. Thắng màn N mở màn N+1, tối đa màn 5.
+
+#### 6.1.9. Losing — Thất bại
+
+Căn cứ về 0 HP gây thất bại ngay. Một quái đang đánh căn cứ vẫn được tính là còn sống và ngăn kết thúc wave. Nếu mất căn cứ cùng thời điểm xử lý kết quả wave, thất bại được ưu tiên.
+
+#### 6.1.10. End — Kết thúc
+
+Sau kết quả, combat dừng. Người chơi có thể chơi lại hoặc về menu; khi thắng còn có thể xem leaderboard và sang màn tiếp theo nếu chưa phải màn 5. Hoàn thành màn 5 kết thúc chiến dịch. Không lưu trạng thái của một trận đang chơi dở.
+
+#### 6.1.11. Why is all this fun? — Giá trị trải nghiệm
+
+Số ô xây hữu hạn khiến người chơi phải chọn vị trí và loại tháp thay vì phủ kín bản đồ. Đạn có thời gian bay và Wisp có thể đổi hướng, tạo sự khác biệt giữa sát thương lý thuyết và hiệu quả thực tế. Slow giúp giữ quái trong vùng hỏa lực, Cannon xử lý cụm đông, còn việc ưu tiên quái đang đánh nhà tạo cơ hội cứu căn cứ ở thời điểm nguy hiểm. Sao và điểm cao khuyến khích chơi lại bằng chiến thuật tiết kiệm và giữ HP tốt hơn.
+
+## 7. Key Features — Đặc điểm chính
+
+- Wisp dùng FSM và dự đoán CPA để quyết định cảnh báo, lùi và tiếp tục tiến.
+- Projectile di chuyển thật; Wisp vẫn có thể bị bắn trúng khi đang né.
+- Bow và Cannon chia sẻ các ô xây cố định; nâng cấp và bán tạo lựa chọn về chi tiêu.
+- Trap làm chậm nhưng không cản đường, không đổi tuyến và không làm chậm nhịp đánh căn cứ.
+- Quái chạm căn cứ sẽ liên tục tấn công cho đến khi bị tiêu diệt.
+- Năm màn với đường thẳng, nhiều tuyến và đường gấp khúc; độ khó tăng bằng thành phần wave và HP quái.
+- Leaderboard từng màn, gửi điểm sau chiến thắng và giữ kết quả chờ gửi khi lỗi mạng.
+
+## 8. Design Document — Thiết kế cơ chế
+
+### 8.1. Design Guidelines — Nguyên tắc thiết kế
+
+1. **Vị trí và chi tiêu là quyết định chính:** ô xây hữu hạn, energy có giới hạn và nâng cấp cần trả tiền.
+2. **Phản ứng của quái có thể quan sát:** cảnh báo xuất hiện trước khi Wisp lùi; né không tạo miễn sát thương và không bảo đảm thành công.
+3. **Đường đi có thể dự đoán:** quái giữ tuyến đã gán, giữ khoảng cách và chỉ đánh khi chạm căn cứ.
+4. **Phản hồi rõ ràng:** HP, energy, vùng tác dụng, preview đặt hợp lệ và trạng thái trận được thể hiện trên màn hình.
+5. **Nội dung trong phạm vi hiện tại:** một chiến dịch năm màn; chưa có boss Shadow Matriarch, co-op, âm thanh hoặc hoạt ảnh sprite đầy đủ. Không bổ sung các tính năng này chỉ để điền template.
+
+Hình ảnh theo phong cách fantasy rừng tối, gỗ, đá, gai và ánh đèn vàng. Các phản hồi hiện có gồm dấu cảnh báo vàng, đổi màu khi lùi/nhận đòn, chớp bắn, vùng nổ và phản hồi căn cứ bị đánh. Cây, đá và phế tích trên nền hiện là trang trí, không mặc nhiên tạo vật cản gameplay.
+
+### 8.2. Game Design Definitions — Định nghĩa cơ chế
+
+#### 8.2.1. Trạng thái trận và vòng wave
+
+| Trạng thái | Hành vi | Điều kiện chuyển |
+| --- | --- | --- |
+| Preparation | Đếm ngược 15 giây; được xây, nâng và bán; không có income theo thời gian | Hết giờ hoặc người chơi bắt đầu sớm |
+| Combat | Spawn, di chuyển, bắn, né, slow, đánh căn cứ và income hoạt động; vẫn được giao dịch | Hết lịch spawn và không còn quái, hoặc căn cứ bị phá |
+| Victory | Dừng combat, lưu kết quả, mở màn và gửi điểm | Chọn màn tiếp, chơi lại hoặc menu |
+| Defeat | Dừng combat; không gửi điểm trận thua | Chơi lại hoặc menu |
+
+Pause dừng mô phỏng và giao dịch; không đổi Preparation/Combat thành một loại trận khác. Thời gian chờ request mạng không phụ thuộc pause.
+
+Giữa các wave cùng màn, HP căn cứ, energy, tháp, cấp nâng và lượt Trap còn lại được giữ. Đạn còn lại được xóa khi clear wave. Đổi màn hoặc Retry tạo trận mới với 20 HP, 150 energy và không có phòng thủ đã xây từ trận trước.
+
+#### 8.2.2. Căn cứ và AttackBase
+
+Mỗi màn có một căn cứ 20 HP ở cuối tuyến, không tự hồi HP hoặc bắn trả. Hitbox căn cứ là hình chữ nhật 1.6 × 3.6 units; quái phải tiếp xúc với hitbox này mới vào **AttackBase**.
+
+Gần cuối đường, quái chọn một trong sáu điểm tiếp xúc ở mép căn cứ, ưu tiên các điểm ngoài trước. Với hai tuyến, tuyến trên sử dụng ba điểm phía trên và tuyến dưới sử dụng ba điểm phía dưới. Quái giữ điểm đã đặt chỗ cho tới khi chết hoặc trận reset, kể cả khi đang lùi khỏi đoạn tiếp cận. Khi hết điểm trống, quái dư chờ trên đường và vẫn được tính là còn sống.
+
+AttackBase dừng chuyển động. Quái chờ đủ thời gian đánh lần đầu rồi gây damage lặp lại theo chu kỳ của loại quái. Không đánh từ xa khi đang chờ chỗ. Wisp đã vào AttackBase không bắt đầu né nữa. Nếu mất tiếp xúc với căn cứ, quái quay về Advance để tiếp cận lại.
+
+#### 8.2.3. Đi theo đường và giữ khoảng cách
+
+Quái di chuyển theo danh sách waypoint của tuyến được gán lúc spawn, từ trái sang căn cứ. Tại khúc cua, quái đi theo từng đoạn đường; khi lùi cũng đi ngược trên route đó, không cắt đường chéo. Không có A*, tìm đường vòng hoặc chọn lại tuyến.
+
+Mỗi quái có hitbox tròn bán kính **0.25 unit**. Khoảng cách tâm tối thiểu giữa hai quái được tính bằng:
+
+```text
+Khoảng cách tâm tối thiểu = bán kính A + bán kính B + đệm an toàn
+Đệm an toàn = 0.05 unit
+Với hitbox hiện tại: 0.25 + 0.25 + 0.05 = 0.55 unit
 ```
 
-Mỗi màn bắt đầu ở Preparation, wave 1, HP 20 và energy 150. Preparation tự hết sau 15 giây hoặc người chơi nhấn Space sớm. Trong Combat có thể xây, nâng và bán phòng thủ. Wave chỉ kết thúc khi mọi entry đã spawn **và** mọi enemy đã chết; một enemy đang đánh base vẫn ngăn clear wave.
+Trên đường chung của một tuyến, quái sau giảm tiến độ hoặc dừng khi không còn đủ khoảng cách, không đi xuyên qua quái trước. Việc di chuyển cũng xét clearance trong không gian thực khi các đoạn đường hoặc đoạn tiếp cận nằm gần nhau. Điểm spawn bị chiếm sẽ hoãn quái tiếp theo, không chèn quái vào vị trí đang có quái khác.
 
-Giữa các wave cùng màn: giữ HP, tiền, tháp, cấp nâng, Trap và lượt còn lại. Nhận thưởng clear rồi sang Preparation tiếp; projectile còn lại được xóa. Sang màn mới hoặc Retry: tạo lại toàn bộ trận từ đầu. Defeat do base hết HP được ưu tiên trước kết quả clear; sau kết quả dừng spawn, income và combat.
+Khoảng lùi khả dụng là quãng đường còn được phép di chuyển sau khi trừ hitbox và đệm, không phải khoảng cách tâm. Trên đoạn thẳng, nếu quái phía sau cách tâm D và không có giới hạn khác:
 
-### 2.2 Điều khiển đang có
+```text
+Khoảng lùi do quái sau giới hạn = max(0, D − 0.25 − 0.25 − 0.05)
+```
 
-| Input | Hành vi |
-| --- | --- |
-| 1 / 2 / 3 | Chọn Thorn Bow / Dust Cannon / Wire Trap; Cannon chỉ xây từ màn 2 |
-| Click trái trên map | Đặt phòng thủ đang chọn; khi không ở chế độ đặt thì chọn tháp/Trap để xem |
-| Click phải | Hủy đặt hoặc bỏ chọn, không mất tiền; bản Web chặn menu trình duyệt trong khung game |
-| Esc | Hủy chế độ đặt; khi không đang đặt thì pause/resume |
-| U | Nâng tháp được chọn, tối đa cấp 3; cần đủ tiền |
-| X | Bán phòng thủ được chọn; Trap không có nâng cấp |
-| Space | Bắt đầu wave trong Preparation; +5 nếu bắt đầu trước khi timer hết |
-| P | Pause/resume trận solo |
-| R | Retry màn hiện tại |
-| Nút HUD/kết quả | Chọn xây, Start, Pause/Resume, Upgrade, Sell, Retry, Next stage hoặc Campaign menu |
+D = 0.85 cho 0.30 unit lùi khả dụng; D = 0.55 cho 0 unit. Vị trí spawn, các quái khác và góc cua có thể làm khoảng lùi thực tế ngắn hơn.
 
-Pause dừng thời gian mô phỏng, chuyển động, projectile, slow/cooldown và income; không cho giao dịch khi pause. Mở menu, load màn và Retry đưa time scale về1. Không còn phím chuyển hai màn thử nghiệm F1/F2.
+#### 8.2.4. Tháp, đặt tháp và nâng cấp
 
-### 2.3 UI hiện tại
+**Bow và Cannon chỉ được đặt vào các vòng vàng được chỉ định trên map.** Click trong vòng, kể cả tại biên bán kính 0.47 unit, sẽ snap tháp và preview về tâm ô. Đất trống ngoài mọi vòng không phải vị trí xây hợp lệ.
 
-Main menu có năm nút màn, trạng thái khóa, sao/điểm cao nhất, How to play và Quit. Màn sau mở khi thắng màn trước. Quit đóng ứng dụng trên bản standalone; trong Editor dừng Play bằng nút Play của Unity.
+Mỗi ô chứa một tháp, dùng chung cho hai loại vũ khí. Nâng cấp giữ nguyên ô; bán giải phóng ô. Tháp không được chồng đường, căn cứ, đoạn tiếp cận, công trình khác hoặc vượt terrain. Footprint Bow có bán kính 0.35, Cannon 0.45; tầm bắn không phải footprint. Ô xây không có chức năng chặn quái hoặc đạn.
 
-Trên Web, Quit mở hộp thoại HTML xác nhận: No hoặc Esc đóng hộp thoại và trả focus về canvas; Yes yêu cầu đóng tab qua window.close trực tiếp từ click. Nếu trình duyệt từ chối, Unity player được dừng bằng Quit(), canvas ẩn và trang hiện Game closed / Play again. Play again tải lại trang; không resume trận đang dở. Website không thể bảo đảm đóng mọi tab người dùng mở. Chuột phải chặn hành vi mặc định của contextmenu và right mousedown/mouseup/auxclick trong khung game; không stopPropagation hoặc cancel pointerdown, nên Unity vẫn nhận input để hủy/bỏ chọn. Ngoài khung vẫn có menu trình duyệt. Chế độ chẩn đoán input chỉ bật khi URL có `?inputDebug=1`, không nằm trong vòng chơi thường.
+| Tháp | Mở từ màn | Giá xây | Damage cấp 1 / 2 / 3 | Tầm bắn cấp 1 / 2 / 3 | Chu kỳ bắn | Giá lên cấp 2 / 3 |
+| --- | ---: | ---: | --- | --- | --- | --- |
+| Thorn Bow | 1 | 50 | 12 / 17 / 23 | 4.0 / 4.3 / 4.6 | 0.8 giây | 35 / 45 |
+| Dust Cannon | 2 | 90 | 22 / 30 / 40 | 5.0 / 5.2 / 5.5 | 1.6 giây | 65 / 85 |
 
-Menu và kết quả Victory có nút **Online leaderboard**. Bảng dùng overlay nền kín riêng, chọn1..5 để xem Top 10 và hạng cá nhân, đổi tên hiển thị cục bộ và Refresh/send pending. Khi overlay mở, ẩn menu/HUD phía sau và khóa input đặt công trình. Không mở bảng trong combat qua phím tắt; không cần pause trận đang chơi để tải bảng.
+Tháp mới luôn ở cấp 1, tối đa cấp 3. Chỉ damage và range tăng khi nâng cấp; tốc độ bắn, tốc độ đạn, thời gian sống và bán kính nổ không tăng. Vũ khí **không tự scale theo màn hoặc wave**.
 
-HUD dùng IMGUI, thiết kế theo khung 1280×720 rồi scale theo kích thước cửa sổ. Thanh trên hiển thị tên màn, base HP, energy, wave, phase, số enemy sống, điểm, mô tả wave trong Preparation và nút xây/Start/Pause. Thanh dưới hiển thị lựa chọn, phản hồi đặt sai, thông số phòng thủ, Upgrade/Sell. Overlay dành cho pause và kết quả. Không dùng HUD chẩn đoán graybox làm giao diện chính.
+Mỗi lần sẵn sàng bắn, tháp chọn lại một quái còn sống có tâm trong tầm theo thứ tự:
 
-Preview màu xanh/đỏ, vòng tầm bắn/slow và thông báo lý do từ chối. Trap snap vào ô đường; tháp chỉ snap vào tâm vòng vàng TowerBuildPad. Nút xây bị vô hiệu khi không đủ tiền hoặc chưa mở; chọn bằng phím vẫn có thể hiện preview không hợp lệ. Input chuột chỉ nhận vùng map giữa hai thanh HUD.
+1. Ưu tiên quái đang AttackBase.
+2. Trong cùng nhóm, chọn quái có quãng đường còn lại tới điểm đánh căn cứ ngắn hơn.
+3. Nếu vẫn bằng nhau, chọn ID nhỏ hơn.
 
-## 3. Kinh tế, điểm và tiến trình
+Tháp không ghim cố định một mục tiêu giữa các phát. Quái Alert hoặc Evade vẫn được chọn. Hướng bắn đón được ước lượng hai lần từ vị trí, vận tốc hiện tại của quái và tốc độ đạn; thuật toán không biết trước lần đổi trạng thái hoặc góc cua sắp tới.
 
-| Quy tắc | Giá trị/hành vi hiện tại |
-| --- | --- |
-| Tiền đầu mỗi màn / Retry | 150 energy |
-| Income | 2 energy/giây trong Combat; giữ phần lẻ giữa các tick |
-| Income khi Preparation/pause/kết quả | Không có |
-| Start sớm | +5, một lần mỗi wave; hết timer tự chạy không có bonus |
-| Clear wave N | 20 + 5×N, một lần; cộng trước khi chấm điểm màn cuối |
-| Kill bounty | Runner 6, Wisp 10, Guard 20; chỉ nhận khi enemy chết trong combat |
-| Sell | floor(70% tổng tiền base + nâng cấp của tháp); Trap giá 35 trả 24 |
-| Điểm hiện tại | 100×base HP còn lại + energy còn lại + 10×số enemy đã diệt |
-| 3 sao / 2 sao / 1 sao | Thắng với HP 18–20 / HP 10–17 / HP 1–9 |
+#### 8.2.5. Projectile và sát thương
 
-Không thể chi vượt số dư. Đặt sai/hủy không mất tiền; giao dịch nâng cấp thành công mới tăng cấp. Bán cùng object lần hai không nhận tiền. Chưa có lãi theo thời gian, tài nguyên khác hoặc điểm thưởng boss.
-
-Màn 1 mở sẵn. Thắng màn N mở N+1, tối đa 5; thắng màn 5 hoàn tất chiến dịch. PlayerPrefs lưu mức đã mở, sao tốt nhất và điểm cao nhất từng màn. Chơi lại kém hơn không làm mất kết quả tốt hơn. Tiền, tháp, HP và trận đang dở không được lưu xuyên màn/qua lần mở game; không có profile nhiều người hoặc nút xóa tiến trình trong UI hiện tại.
-
-Leaderboard dùng cùng công thức điểm, gửi sau khi cộng thưởng wave cuối và chốt Victory. Kết quả local được lưu trước network; thua không gửi. Mỗi màn có bảng riêng, xếp giảm dần và giữ best của mỗi player. Điểm online không mở khóa màn hoặc khôi phục save cục bộ; cơ chế network chi tiết ở mục 14.
-
-## 4. Vũ khí, nâng cấp và targeting
-
-Phân biệt **màn chơi** với **cấp tháp**: tháp mới ở mọi màn đều cấp 1. Vũ khí không tự scale theo màn hoặc wave; người chơi trả tiền để nâng. Cấp tháp giữ giữa các wave và reset khi đổi màn/Retry.
-
-| Phòng thủ | Giá mua | Damage cấp 1/2/3 | Range cấp 1/2/3 | Chu kỳ bắn | Giá lên cấp 2/3 |
-| --- | ---: | --- | --- | --- | --- |
-| Thorn Bow | 50 | 12 / 17 / 23 | 4.0 / 4.3 / 4.6 | 0.8 giây | 35 / 45 |
-| Dust Cannon | 90 | 22 / 30 / 40 | 5.0 / 5.2 / 5.5 | 1.6 giây | 65 / 85 |
-| Wire Trap | 35 | Không gây damage | Trigger 0.8 | Không bắn | Không nâng cấp |
-
-Nâng cấp tháp chỉ đổi damage và range, thêm dấu cấp bằng hình nhỏ. Fire interval, tốc độ/bán kính/lifetime projectile và bán kính nổ không đổi. Tổng chi phí Bow cấp 3 là 130, bán 91; Cannon cấp 3 là 240, bán 168.
-
-### 4.1 Targeting và lead aim
-
-Mỗi lần sẵn sàng bắn, tháp chọn lại enemy còn sống và có tâm trong range:
-
-1. Ưu tiên AttackBase trong tầm.
-2. Cùng nhóm ưu tiên: enemy có **quãng đường còn lại ngắn hơn** tới điểm đánh base được chọn trước.
-3. Nếu bằng nhau, ID nhỏ hơn được chọn.
-
-Không giữ khóa mục tiêu cố định giữa các phát. Alert/Evade vẫn là mục tiêu hợp lệ. Lead dùng velocity thực tế của enemy, gồm tốc độ lùi/slow: ước lượng t=distance/projectileSpeed, dự đoán aim theo velocity×t, tính lại t từ aim rồi dự đoán lần hai. Dự đoán không biết trước góc cua hoặc lúc enemy đổi state.
-
-Arrow/shell đã bắn không bám mục tiêu. Enemy lùi có thể tránh phát đã bắn, nhưng không hủy đạn, không mất quyền bị chọn và không có miễn sát thương. Va chạm có thể trúng enemy khác với mục tiêu ban đầu. Tháp không bắn khi chưa có mục tiêu, đang cooldown, pause hoặc ngoài combat.
-
-### 4.2 Projectile và damage
-
-| Thuộc tính | Bow | Cannon |
+| Thuộc tính | Đạn Thorn Bow | Đạn Dust Cannon |
 | --- | ---: | ---: |
 | Tốc độ | 6 units/giây | 5 units/giây |
-| Hit radius | 0.08 | 0.12 |
-| Lifetime tối đa | 3 giây | 3 giây |
-| AoE | Không | Bán kính 1.2, không giảm damage theo khoảng cách |
+| Bán kính va chạm | 0.08 | 0.12 |
+| Thời gian sống tối đa | 3 giây | 3 giây |
+| Vùng nổ | Không | Bán kính 1.2 units |
 
-Projectile có kinematic Rigidbody2D và CircleCollider2D trigger. Physics2D CircleCast quét quãng đường mỗi fixed step và callback va chạm quyết định hit, không dùng CPA để tự cấp damage.
+Đạn bay theo hướng đã bắn, không tự lái hoặc bám mục tiêu. Physics2D kiểm tra va chạm và quét quãng đường di chuyển để tránh xuyên qua quái. CPA chỉ phục vụ dự đoán né, không quyết định đòn đánh đã trúng.
 
-- Arrow biến mất ở enemy hợp lệ đầu tiên, ProjectileBlocker hoặc hết lifetime.
-- Shell giữ aim point lúc bắn; nổ khi chạm enemy đầu tiên hoặc đến aim point, điều kiện nào trước. Va blocker hoặc hết lifetime thì biến mất, không nổ.
-- Nổ dùng OverlapCircle, áp damage một lần cho mỗi enemy ID dù có nhiều collider. Có thể trúng Advance, Alert, Evade và AttackBase; không giới hạn path.
-- Trap, base và collider không phải enemy/blocker không hấp thụ projectile. Trong map mặc định hiện không có blocker gameplay ở giữa bản đồ.
-- Damage sau giáp = max(1, damage tháp − armor enemy). Bow cấp 1 đánh Guard mất 8 HP; Cannon cấp 1 mất 18 HP. Không có crit, damage ngẫu nhiên hoặc resist riêng theo loại damage.
-- Hiệu ứng hình blast/chớp bắn không có hitbox gây damage lần hai.
+- Đạn Bow gây damage cho quái đầu tiên va chạm rồi biến mất; có thể trúng quái khác với mục tiêu ban đầu.
+- Đạn Cannon nổ khi chạm quái đầu tiên hoặc tới điểm ngắm đã chốt lúc bắn. Mọi hitbox quái giao với vùng nổ nhận đủ damage, mỗi quái một lần, không giảm theo khoảng cách và không giới hạn cùng tuyến.
+- Đạn hết thời gian sống hoặc bị vật cản chặn đạn hấp thụ sẽ bị hủy; trường hợp này không tự tạo vụ nổ. Các map hiện tại không có vật cản đạn gameplay ở giữa map.
+- Tháp, Trap và căn cứ không hấp thụ đạn. Hiệu ứng chớp/nổ chỉ phản hồi hình ảnh, không gây thêm một lần damage.
 
-## 5. Đặt tháp và Wire Trap
+```text
+Damage thực nhận = max(1, damage của phát bắn − armor của quái)
+```
 
-### 5.1 Tháp
+Bow cấp 1 gây 8 damage lên Iron Guard; Cannon cấp 1 gây 18. Không có chí mạng hoặc xác suất trúng được tính sẵn. Wisp đổi hướng có thể làm đạn trượt, nhưng vẫn nhận sát thương bình thường nếu va chạm.
 
-**Chỉ xây trên các vòng vàng có component TowerBuildPad trong scene.** Vòng có bán kính click0.47 unit, dùng chung cho Bow và Cannon; Cannon vẫn khóa ở màn1. Click bên trong hoặc đúng biên vòng snap cả preview lẫn tháp về tâm Transform. Click ngoài mọi vòng bị từ chối, kể cả đất trống không chồng đường. Không tìm ô trống ở xa hoặc bỏ qua ô đang chiếm để tự nhảy sang ô khác.
+#### 8.2.6. Wire Trap
 
-Mỗi ô chứa tối đa một tháp. Bow và Cannon không thể dùng chung một ô cùng lúc; nâng cấp giữ nguyên ô, bán giải phóng ô ngay. Đặt sai/hủy/ô đã chiếm không mất tiền. Pad không có collider, không chặn enemy hoặc projectile.
+| Thuộc tính | Giá trị |
+| --- | --- |
+| Giá đặt | 35 energy |
+| Footprint logic | Bán kính 0.25 unit |
+| Vùng kích hoạt | Bán kính 0.8 unit |
+| Slow | Giảm 50% tốc độ di chuyển trong 2 giây |
+| Lượt sử dụng | 6 quái khác nhau |
+| Nâng cấp / sát thương | Không có |
 
-Bow footprint tròn bán kính0.35; Cannon0.45. Sau snap, toàn footprint phải trong build bounds **x=-8.8..8.8, y=-3.2..3.2**, không chồng đường enemy, base, approach, Rect obstacle hoặc tháp khác. Một pad bị dời vào vùng cấm cũng không cấp quyền xây sai. Range không phải footprint để cấm xây. Không có pad hoạt động thì không được xây tháp; không có chế độ fallback đặt tự do.
+Trap chỉ đặt trên ô đường hợp lệ, snap theo lưới cách 1 unit dọc dải đường thẳng. Waypoint thẳng hàng không ngắt dải. Ô đầu cách spawn hoặc đầu dải sau góc ít nhất 1 unit; trước góc thật chừa ít nhất 0.6 unit. Đoạn quá ngắn có thể không có ô. Không đặt trùng Trap, chồng căn cứ hoặc footprint của các điểm tiếp xúc căn cứ, kể cả điểm đang trống.
 
-Tâm vòng và tâm xét đặt lấy từ cùng Transform của TowerBuildPad. LineRenderer vẽ theo local-space nên di chuyển pad trong Editor sẽ di chuyển cả hình và ô logic. Authoring chỉ thay X/Y, giữ scale1 và không nghiêng/đổi scale root. Thư mục scene chứa các pad thật; các mảng `Stage.suggestedBows`/`suggestedCannons` chỉ xác định thứ tự mua của chiến thuật test, không là vùng cho phép xây.
+Được đặt dưới quái đang di chuyển, Alert hoặc Evade và tại ô đường hợp lệ gần căn cứ; không có thời gian lắp đặt. Trap không chiếm ô xây tháp, không có collider solid, không chặn chuyển động và không làm quái đổi đường.
 
-Đường waypoint dùng vùng capsule quanh từng đoạn, bán kính bằng nửa chiều rộng đường, không cấm toàn hình chữ nhật bao đường chữ S. Approach cuối của base vẫn cấm tower; với map hiện tại đó là vùng x=5.5..6.8, y=-1.7..1.7.
+Khi quái sống overlap vùng kích hoạt trong Combat, Trap chỉ tác dụng nếu quái cùng tuyến và cùng dải đường thẳng tương đương. Một quái chỉ tốn một lượt trên cùng Trap, kể cả khi lùi qua lần nữa. Trap khác có thể làm mới timer slow về 2 giây; hiệu ứng không nhân chồng. Rời vùng Trap không xóa slow ngay.
 
-### 5.2 Trap: luật đã triển khai
+Quái thứ sáu vẫn nhận slow rồi Trap bị tiêu hao và biến mất. Có thể bán Trap còn lượt. Quái AttackBase bị bỏ qua, không làm mất lượt và không bị chậm nhịp đánh nhà. Slow đã nhận trước đó cũng chỉ ảnh hưởng di chuyển, không thay đổi thời gian đánh căn cứ.
 
-Trap chỉ đặt trên ô đường hợp lệ. Được đặt dưới enemy đang di chuyển/Alert/Evade và trên ô đường cuối gần base. Không yêu cầu chờ enemy rời vị trí, không có thời gian lắp/arming delay.
+#### 8.2.7. Các loại quái và độ khó
 
-Vẫn từ chối spawn, khoảng cấm quanh góc thật, footprint base, footprint các contact slot kể cả đang trống, hoặc vị trí đã có Trap. Khoảng cách tới Trap khác nhỏ hơn 0.5 bị coi là trùng. Pause/kết quả/không đủ tiền đều từ chối.
-
-Footprint logic để xét base/contact là bán kính 0.25; trigger slow 0.8 là vùng tác dụng riêng và được phép phủ rộng hơn. Kiểm tra contact dùng hit radius của các EnemyData đã cấu hình, không chỉ enemy đang đứng đó. Trap không có collider solid và không cản/reroute enemy.
-
-Lưới snap cách 1 unit dọc mỗi dải đường thẳng liên tiếp. Waypoint cùng hướng thẳng hàng, gồm marker bắt đầu approach, không ngắt lưới hay eligibility. Góc thật giữ ít nhất 1 unit từ đầu đoạn sau góc và 0.6 unit trước cuối đoạn trước góc; đoạn ngắn có thể không có ô. Spawn cũng chừa ít nhất 1 unit. Đoạn cuối có thể dùng tới endpoint nhưng vẫn qua kiểm tra base/contact riêng. Hai đoạn song song không liền nhau hoặc hai path khác không được gộp.
-
-### 5.3 Kích hoạt và slow
-
-Physics2D Enter/Stay xử lý enemy đi vào và enemy đã overlap lúc Trap được tạo. Chỉ enemy sống, đang combat, cùng path và cùng đoạn tương đương mới kích hoạt. **AttackBase bị bỏ qua trước khi ghi ID hoặc trừ lượt**; Trap không làm chậm nhịp đánh nhà.
-
-Mỗi Trap áp slow 50% trong 2 giây lên tối đa 6 enemy khác nhau. Mỗi enemy chỉ kích hoạt một lần trên cùng Trap, kể cả đi qua lần nữa khi lùi. Trap khác có thể refresh timer 2 giây; slow không nhân chồng. Rời trigger không xóa slow ngay. Enemy thứ 6 vẫn nhận slow rồi Trap bị xóa. Có thể bán Trap chưa hết lượt, không có nâng cấp Trap.
-
-Slow đã nhận trước khi chạm base vẫn có thể còn timer, nhưng chỉ tác động tốc độ di chuyển; không đổi AttackBase wind-up/interval. Xem hướng dẫn thử trực tiếp ở [TRAP_RULES.md](TRAP_RULES.md).
-
-## 6. Enemy và cách scale
-
-| Enemy | HP gốc | Tốc độ | Armor | Bounty | Damage base | Delay phát đầu / interval | Né |
+| Quái | HP gốc | Tốc độ | Giáp | Energy khi diệt | Damage căn cứ | Chờ đánh lần đầu | Chu kỳ đánh |
 | --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| Runner | 40 | 1.6 | 0 | 6 | 1 | 1.0 / 2.0 giây | Không |
-| Retreat Wisp | 55 | 1.3 | 0 | 10 | 1 | 1.0 / 2.0 giây | 2 lượt, luật CPA ở mục7 |
-| Iron Guard | 160 | 0.8 | 4 | 20 | 2 | 1.5 / 3.0 giây | Không |
+| Runner | 40 | 1.6 | 0 | 6 | 1 | 1.0 giây | 2.0 giây |
+| Retreat Wisp | 55 | 1.3 | 0 | 10 | 1 | 1.0 giây | 2.0 giây |
+| Iron Guard | 160 | 0.8 | 4 | 20 | 2 | 1.5 giây | 3.0 giây |
 
-Mỗi enemy dùng circle hit radius 0.25. Wisp lùi không slow đi1.56 units/giây (1.3×1.2), có slow đi0.78. Runner slow đi0.8; Guard slow đi0.4.
+Runner tạo áp lực bằng tốc độ và số lượng. Wisp có thêm khả năng cảnh báo/lùi. Iron Guard chịu đòn lâu hơn nhờ HP và giáp, nhưng tiến chậm.
 
-**Chỉ HP scale khi spawn:**
+Trong lịch wave hiện tại, Runner có từ wave 1 màn 1, Wisp từ wave 3 màn 1 và Iron Guard từ wave 4 màn 1. Đây là thời điểm xuất hiện của quái; điều kiện mở Dust Cannon vẫn là màn 2.
 
-```text
-HP spawn = HP gốc × [1 + 0.08 × (waveIndex − 1)] × levelMultiplier
-```
-
-Hệ số màn 1..5 là **1.00 / 1.10 / 1.15 / 1.20 / 1.25**. Đây là cấu hình trong LevelSettings từng màn. Mỗi wave cộng thêm8% HP gốc trong công thức tuyến tính, không phải lũy thừa1.08. Giữ HP float nội bộ. Không scale tốc độ, giáp, bounty, damage đánh base, cooldown hoặc charge né. Enemy đang sống không được cộng thêm HP khi đổi wave.
-
-Wave index reset về1 ở màn mới: Runner màn 1 wave 6 có 56 HP nhưng màn 2 wave 1 có44 HP. Runner/Wisp/Guard màn 5 wave 10 lần lượt86/118.25/344 HP. Thành phần enemy tăng theo lịch wave đã soạn, không tự cân bằng theo người chơi.
-
-## 7. Wisp FSM, CPA và retreat
-
-```mermaid
-stateDiagram-v2
-    [*] --> Advance
-    Advance --> Alert: projectile mới nguy hiểm, còn charge, hết cooldown
-    Alert --> Evade: sau 0.20s, threat còn và có ít nhất 0.3 unit lùi
-    Alert --> Advance: threat hết hoặc không đủ chỗ
-    Evade --> Advance: lùi đủ / chạm giới hạn / bị chặn
-    Advance --> AttackBase: chạm collider base
-    Alert --> AttackBase: chạm collider base
-    Advance --> Dead: HP bằng 0
-    Alert --> Dead: HP bằng 0
-    Evade --> Dead: HP bằng 0
-    AttackBase --> Dead: HP bằng 0
-```
-
-Advance tiến trên route. Alert tiếp tục đi tới trong 0.20 giây và hiện dấu vàng. Evade đảo progress trên chính route đã đi, không chạy ngang hoặc tìm đường mới. AttackBase đứng đánh và không né. Death hủy collider/combat của enemy và trả bounty đúng một lần.
-
-### 7.1 Threat prediction thực tế
-
-Mỗi0.1 giây, Wisp đủ điều kiện duyệt danh sách projectile đang hoạt động; không có radius sensor riêng ngoài phép CPA. Đặt d=projectilePosition−enemyPosition, u=projectileVelocity−enemyVelocity:
+**Chỉ HP tự scale khi spawn:**
 
 ```text
-horizon = min(1.2 giây, lifetime projectile còn lại)
-nếu |u|² > 0.000001:
-    tCPA = clamp(−dot(d,u)/|u|², 0, horizon)
-nếu không: tCPA = 0
-threat nếu |d + u×tCPA| <= enemyRadius + projectileRadius + safetyMargin
+HP spawn = HP gốc × [1 + 0.08 × (số wave − 1)] × hệ số màn
 ```
 
-Safety margin hiện0.05, độc lập spacing buffer của enemy. Projectile đã hết lifetime không là threat. Chọn threat có tCPA sớm nhất, hòa thì ID nhỏ hơn. Một cặp enemy–projectile chỉ được mở Alert một lần; không reroll xác suất và không có tỷ lệ né ngẫu nhiên. Trap không là projectile nên không tạo threat.
+Hệ số của màn 1–5 lần lượt là **1.00 / 1.10 / 1.15 / 1.20 / 1.25**. Phần tăng theo wave là tuyến tính, không phải lũy thừa 1.08. Ví dụ Wisp ở wave 3 màn 2 có 55 × 1.16 × 1.10 = 70.18 HP. Tốc độ, giáp, bounty, damage căn cứ và số lượt né không tự tăng theo màn/wave.
 
-### 7.2 Quyết định lùi
+#### 8.2.8. AI của Retreat Wisp
 
-Sau Alert, kiểm tra lại projectile và chỗ lùi. Nếu threat còn và có ít nhất 0.3 unit **di chuyển lùi khả dụng sau khi giữ khoảng cách hitbox**, bắt đầu Evade, trừ1 charge và bắt đầu cooldown 4 giây. Alert bị hủy không tốn charge/cooldown.
+| Trạng thái | Hành vi |
+| --- | --- |
+| Advance | Tiến về căn cứ; phát hiện nguy hiểm khi còn lượt né và hết hồi chiêu |
+| Alert | Hiện cảnh báo vàng trong 0.20 giây; vẫn tiến nếu đường còn trống |
+| Evade | Lùi trên chính route đã đi, vẫn có thể bị đạn hoặc vụ nổ gây sát thương |
+| AttackBase | Dừng và đánh căn cứ; không mở lần né mới |
+| Dead | Dừng hoạt động, trả thưởng một lần và giải phóng chỗ tại căn cứ |
 
-Lùi tối đa 1.5 units, giới hạn bởi spawn, enemy khác và route đã đi. Occupancy được kiểm tra lại mỗi bước; gặp chặn dừng lùi, không hoàn lại charge đã dùng. Có tối đa 2 lần bắt đầu lùi cho một Wisp. Đang cooldown hoặc hết charge thì không mở Alert mới. Có thể lùi qua góc và trên approach đã đi, nhưng không lùi sau khi đã AttackBase.
+Runner và Iron Guard dùng phần Advance/AttackBase/Dead của cơ chế này. Không có học máy hoặc tỷ lệ né ngẫu nhiên.
 
-CPA chỉ là dự đoán và Evade chỉ là một lần thử. Arrow/shell có thể tiếp tục hit/giết Wisp khi lùi. Muốn gọi một lần né thành công phải đo hit/miss thực tế hoặc so sánh trường hợp không lùi, không suy từ counter EvadeStarts.
+**Nhận biết nguy hiểm bằng CPA:** mỗi 0.1 giây, Wisp đủ điều kiện xét các projectile đang hoạt động. CPA là thời điểm dự đoán hai vật thể đến gần nhau nhất, dựa trên vận tốc tương đối hiện tại.
 
-## 8. Navigation, khoảng cách và căn cứ
+```text
+d = vị trí đạn − vị trí Wisp
+u = vận tốc đạn − vận tốc Wisp
+H = min(1.2 giây, thời gian sống còn lại của đạn)
 
-EnemyPath lưu pathId, các waypoint world-space, progress và segment. Các map hiện tại không có path tự giao hoặc merge chung; hai tuyến đi độc lập tới cùng base. Chưa có A*, navmesh hoặc reroute động. Di chuyển bằng kinematic Rigidbody2D; Physics2D dùng để nhận hit/trigger, không dùng lực đẩy để xếp hàng.
+Nếu |u|² > 0.000001:
+    tCPA = clamp(−dot(d, u) / |u|², 0, H)
+Nếu gần bằng 0:
+    tCPA = 0
 
-Khoảng cách tâm tối thiểu = radiusA + radiusB + spacingBuffer. Với hai enemy0.25 và buffer 0.05, tối thiểu0.55; dùng radius thật từng cặp, không cố định0.55 cho mọi cấu hình. Cùng route giữ cách theo progress; đồng thời quét khoảng cách world với enemy khác trên các đoạn gần nhau/approach. Kiểm tra di chuyển/lùi được chia tại góc để không lấy đường chéo cắt cua. Spawn đang bị chiếm phải đợi đủ clearance.
+Nguy hiểm nếu |d + u × tCPA| ≤ bán kính Wisp + bán kính đạn + 0.05
+```
 
-Trên đoạn thẳng, enemy sau cách tâm D thì chỗ lùi do nó giới hạn là max(0, D−radiusA−radiusB−buffer), còn phải giới hạn bởi spawn/max backstep/occupancy khác. D=0.85 với radius 0.25/0.25 và buffer 0.05 cho0.3 unit lùi; D=0.55 cho0. Không bảo đảm toàn bộ đường lùi sẽ tiếp tục trống khi enemy khác di chuyển.
+Biên CPA 0.05 là thông số riêng với đệm giữ khoảng cách giữa quái. Không có bán kính cảm biến riêng ngoài phép dự đoán này. Trong các đạn nguy hiểm, chọn đạn có tCPA sớm nhất; nếu bằng nhau dùng ID nhỏ hơn. Một cặp Wisp–đạn chỉ tạo Alert một lần. Trap và vùng nổ tương lai không được xét như projectile đang bay.
 
-Căn cứ tại **(7.6,0)**, BoxCollider2D trigger size **1.6×3.6**, footprint x=6.8..8.4, y=-1.8..1.8, HP 20. Enemy đi đến approach bắt đầu ở x=5.5 rồi tới một contact slot ở mép trái. Với radius 0.25, tâm contact x=6.55; offset y theo thứ tự **+1.5, −1.5, +0.9, −0.9, +0.3, −0.3**. Màn hai tuyến dành ba điểm dương cho tuyến trên, ba điểm âm cho tuyến dưới.
+**Quyết định sau cảnh báo:** kiểm tra lại đạn đã theo dõi và khoảng lùi. Nếu đạn còn nguy hiểm và có ít nhất **0.30 unit lùi khả dụng sau khi giữ clearance**, Wisp bắt đầu Evade. Nếu không, quay về Advance mà không tốn lượt hoặc hồi chiêu. Alert đang tiến mà chạm căn cứ có thể chuyển sang AttackBase.
 
-Enemy đặt chỗ khi tới approach, giữ chỗ đó cho tới chết/reset; kể cả đang lùi khỏi approach, điểm đã nhận chưa được nhường cho enemy khác. Hết slot thì enemy dư còn sống và đợi, không biến mất, không tự clear wave hoặc đánh từ xa. Mọi contact đều nằm trong tầm một Bow hợp lệ quanh (5,1.5).
+| Thuộc tính né | Giá trị |
+| --- | --- |
+| Số lần bắt đầu Evade | Tối đa 2 lần trong đời quái |
+| Khoảng lùi tối đa mỗi lần | 1.5 units |
+| Hệ số tốc độ lùi | 1.2 × tốc độ tiến |
+| Tốc độ lùi bình thường / đang slow | 1.56 / 0.78 units/giây |
+| Hồi chiêu | 4 giây, bắt đầu khi vào Evade |
 
-**Chỉ chạm base mới AttackBase:** kiểm tra circle/box cùng hình học collider, thêm tolerance 0.002 cho sai số tại tiếp tuyến. Sau chạm mới bắt đầu delay phát đầu; mỗi lần đánh trừ HP một lần rồi đợi interval. Base không tự bắn trả, không tự hồi HP; tháp ưu tiên enemy đang đánh base. Căn cứ0 HP gây Defeat ngay.
+Lượt né bị trừ khi bắt đầu Evade. Khoảng trống được kiểm tra lại trong lúc lùi; gặp quái khác hoặc tới giới hạn thì dừng lùi và trở lại Advance, không hoàn lượt. Có thể lùi qua góc hoặc trên đoạn tiếp cận đã đi, không lùi vượt điểm spawn. Trạng thái né không hủy projectile và không làm Wisp mất quyền bị tháp chọn.
 
-## 9. Chiến dịch năm màn
+#### 8.2.9. Energy và giao dịch
 
-| Màn | Bố cục | Wave | Multiplier | Tổng enemy | Mục tiêu chiến thuật |
-| --- | --- | ---: | ---: | ---: | --- |
-| 1 — Forest Road | 1 đường thẳng | 6 | 1.00 | 68 | Bow, Trap, nâng cấp; giữ hỏa lực gần base |
-| 2 — Twilight Crossing | 2 đường song song | 8 | 1.10 | 166 | Mở Cannon, bao phủ hai tuyến và cụm Runner/Guard |
-| 3 — Ancient Garden | 1 đường chữ S | 8 | 1.15 | 163 | Bắn nhiều lần tại khúc cua, retreat theo route |
-| 4 — Amber Quarry | 2 đường ngoài rẽ vào giữa | 9 | 1.20 | 232 | Phân phối chặn sớm và phòng thủ trong |
-| 5 — Moonlit Sanctuary | 2 tuyến zíc zắc rẽ ở vị trí khác nhau | 10 | 1.25 | 301 | Tổng hợp chia tuyến, timing và nâng cấp |
+| Nguồn hoặc giao dịch | Quy tắc |
+| --- | --- |
+| Energy đầu màn / Retry | 150 |
+| Income thời gian | 2 energy/giây trong Combat; giữ phần lẻ khi tích lũy |
+| Bắt đầu wave sớm | +5, một lần mỗi wave nếu timer còn lớn hơn 0 |
+| Diệt quái | Runner +6, Wisp +10, Guard +20 |
+| Clear wave N | +20 + 5 × N, kể cả wave cuối |
+| Xây / nâng cấp | Trừ đúng chi phí khi giao dịch thành công |
+| Bán | Hoàn floor(70% tổng energy đã trả cho công trình) |
 
-Toàn chiến dịch có **41 wave, 930 enemy**, không có boss. Số liệu là lịch hiện tại, chưa chốt cân bằng phát hành cuối. Mỗi màn bắt đầu lại với150 energy, vì vậy các wave mở đầu vẫn cần cho thời gian dựng phòng thủ.
+Đặt sai, hủy đặt và nâng cấp thất bại không mất tiền. Không có income thời gian trong Preparation, pause hoặc sau kết quả. Không có khoản thưởng khi quái chỉ chạm căn cứ.
 
-### 9.1 Tọa độ route hiện tại
+Bow cấp 3 đã chi 130 energy, bán nhận 91; Cannon cấp 3 đã chi 240, bán nhận 168. Trap bán nhận 24 energy, không phụ thuộc số lượt còn lại miễn là chưa tiêu hao hết.
 
-Đường rộng1 unit. Điểm cuối(6.55,y) biểu diễn tuyến danh định; từ waypoint áp chót(5.5,y), enemy dùng đoạn tiếp cận contact đã đặt chỗ.
+#### 8.2.10. Thành phần và nhịp wave
 
-- Màn 1: (-8,0) → (5.5,0) → (6.55,0).
-- Màn 2: hai route (-8,±1.25) → (5.5,±1.25) → (6.55,±1.25).
-- Màn 3: (-8,-1.8) → (-5,-1.8) → (-5,1.5) → (0,1.5) → (0,-1.2) → (3,-1.2) → (3,0) → (5.5,0) → (6.55,0).
-- Màn 4 trên: (-8,2.2) → (-2,2.2) → (-2,1.15) → (3.5,1.15) → (3.5,1.25) → (5.5,1.25) → (6.55,1.25). Tuyến dưới đối xứng qua y=0.
-- Màn 5 trên: (-8,1.25) → (-5,1.25) → (-5,2.5) → (0.5,2.5) → (0.5,1.25) → (5.5,1.25) → (6.55,1.25).
-- Màn 5 dưới: (-8,-1.25) → (-2,-1.25) → (-2,-2.5) → (3,-2.5) → (3,-1.25) → (5.5,-1.25) → (6.55,-1.25).
+Các wave được soạn sẵn, không random loại quái hoặc tuyến spawn trong trận. Mỗi entry có loại quái, độ trễ tính từ lần spawn thực tế trước và tuyến được gán. Nếu spawn bị chiếm, lịch đợi thêm và giữ độ trễ cho những quái sau, không dồn chúng vào cùng lúc.
 
-Ảnh world từ bản Windows: [màn 1](../DebugCaptures/Campaign_Level1.png), [màn 2](../DebugCaptures/Campaign_Level2.png), [màn 3](../DebugCaptures/Campaign_Level3.png), [màn 4](../DebugCaptures/Campaign_Level4.png), [màn 5](../DebugCaptures/Campaign_Level5.png). Ảnh không gồm HUD/menu IMGUI; không phải bằng chứng người thật đã chơi bằng chuột/phím.
-
-### 9.2 Ô xây bắt buộc và gợi ý mở đầu
-
-| Màn | Số ô chung | Tâm ô xây tháp |
-| --- | ---: | --- |
-| 1 | 5 | (-1,1.5), (5,1.5), (2,-1.5), (-4,-1.5), (5,-1.5) |
-| 2 | 8 | (-1,0), (2,0), (5,0), (-4,0), (5,±2.5), (2,±2.5) |
-| 3 | 6 | (-6.5,0.2), (-2.5,-0.1), (1.6,0.1), (5,1.5), (5,-1.5), (1.5,2.7) |
-| 4 | 8 | (-1,0), (2,0), (5,0), (-4,0), (5,±2.5), (2,±2.5) |
-| 5 | 7 | (-1,0), (2,0), (5,0), (-4,0), (5,±2.5), (2,2.5) |
-
-Màn3 kéo ô trên từ(1.5,2.8) xuống(1.5,2.7) để footprint Cannon nằm trọn trong terrain; gộp hai vòng trùng tọa độ thành một ô. Chưa đổi route, wave, HP, damage hoặc kinh tế vì thay đổi này. Các gợi ý mở đầu dưới đây đều phải dùng ô thật:
-
-| Màn | Mở đầu hợp lý | Bổ sung / lựa chọn khác |
-| --- | --- | --- |
-| 1 | Bow(-1,1.5), Bow(5,1.5); nâng Bow đầu L2 | Bow(2,-1.5),(-4,-1.5),(5,-1.5); Trap(0,0),(4,0), ô cuối(5,0)/(6,0) |
-| 2 | Cannon(-1,0), Bow(5,0), tổng140 | Cannon(2,0); Bow(-4,0),(5,±2.5),(2,±2.5); Trap trên mỗi tuyến, gồm ô cuối hợp lệ |
-| 3 | Bow(-6.5,0.2), Bow(5,1.5); nâng Bow đầu | Cannon(1.6,0.1),(-2.5,-0.1); Bow(5,-1.5),(1.5,2.7); Trap(-5,-0.8),(0,0.5),(4,0) |
-| 4 | Cannon(-1,0), Bow(5,0) | Cannon(2,0); Bow(-4,0),(5,±2.5),(2,±2.5); Trap(4.5,±1.25), ô gần base hợp lệ |
-| 5 | Cannon(-1,0), Bow(5,0) | Cannon(2,0); Bow(-4,0),(5,±2.5),(2,2.5); Trap quanh(4,±1.25) theo snap |
-
-Thứ tự mua/nâng là gợi ý, không bảo đảm mọi chiến thuật thắng; tập vị trí được xây là các ô đã liệt kê. Mỗi ô cho chọn Bow hoặc Cannon khi đã mở, không đặt cả hai cùng lúc. Ví dụ(-6.5,0.2) ở màn3 có thể dùng Cannon thay Bow. Màn5 không có ô(2,-2.5) vì có đường đi qua đó. Trap vẫn dùng ô đường riêng, không cần vòng vàng.
-
-## 10. Wave: số lượng và nhịp spawn
-
-Mỗi ô bảng là **Runner / Wisp / Guard**; dấu— là màn không có wave đó. Bảng được xuất từ LevelSettings đang gán trong scene, không lấy từ tài liệu phiên bản cũ.
+Mỗi ô dưới đây là **Runner / Wisp / Guard**; dấu — nghĩa là màn không có wave đó.
 
 | Wave | Màn 1 | Màn 2 | Màn 3 | Màn 4 | Màn 5 |
 | --- | --- | --- | --- | --- | --- |
@@ -299,111 +325,159 @@ Mỗi ô bảng là **Runner / Wisp / Guard**; dấu— là màn không có wave
 | 9 | — | — | — | 26/7/4 | 28/8/5 |
 | 10 | — | — | — | — | 30/8/6 |
 
-### 10.1 Lịch thời gian
+Nhịp spawn theo thứ tự **Wisp → Guard → Runner**, bỏ qua nhóm không có:
 
-Mỗi wave dùng các entry đã soạn có EnemyData, Delay và Path Index. Index0 là tuyến duy nhất/trên; index1 là tuyến dưới khi có hai tuyến. Không random thành phần hoặc hướng spawn trong trận.
+- Wisp cách nhau 3 giây ở màn một tuyến, hoặc 1.5 giây khi luân phiên hai tuyến.
+- Guard đầu xuất hiện sau Wisp cuối 6 giây; các Guard tiếp theo cách 2 giây.
+- Runner đầu xuất hiện sau Guard cuối 2 giây, hoặc sau Wisp cuối 6 giây nếu không có Guard.
+- Các Runner tiếp theo cách 0.9 giây ở một tuyến, hoặc 0.32 giây khi luân phiên hai tuyến.
+- Entry đầu của wave có delay 0. Tuyến khởi đầu được luân phiên theo wave ở màn hai tuyến; hai tuyến vẫn dùng chung lịch spawn tuần tự.
 
-1. Wisp đi trước. Một tuyến cách 3 giây; hai tuyến luân phiên mỗi1.5 giây, nên cùng tuyến vẫn cách 3 giây. Tuyến khởi đầu đổi luân phiên theo wave.
-2. Có khoảng nghỉ6 giây sau Wisp cuối trước Guard, hoặc trước Runner nếu không có Guard.
-3. Guard nếu có cách 2 giây giữa các entry, luân phiên tuyến.
-4. Runner vào sau Guard 2 giây. Runner cùng một tuyến cách 0.9 giây; hai tuyến luân phiên mỗi0.32 giây, tức0.64 giây trên cùng tuyến.
-5. Nhóm đầu tiên của wave spawn từ t=0. Wave toàn Runner không có khoảng nghỉ6 giây ở đầu.
+Cho Wisp đi trước và chừa khoảng nghỉ trước nhóm sau giúp tạo cơ hội lùi, thay vì xếp Runner nhanh hơn ngay sát phía sau. Đây không phải bảo đảm luôn né được: slow, quái dồn hàng và trạng thái combat có thể làm mất khoảng trống.
 
-Delay đo từ lần spawn **thực tế** trước đó; nếu spawn bị occupancy giữ lại, các entry sau vẫn giữ khoảng nghỉ của chúng. Giữ Wisp trước Runner giúp có cơ hội lùi thay vì bị Runner tốc1.6 phía sau ép sát Wisp tốc1.3 ngay từ đầu. Slow, giao tranh muộn, charge/cooldown và crowding vẫn có thể khiến Wisp không lùi được. Guard đi chậm giúp nhóm Runner sau tụ cụm cho Cannon.
+#### 8.2.11. Điểm, sao và tiến trình
 
-## 11. Hình ảnh và phản hồi
-
-Phong cách môi trường: fantasy rừng tối, gỗ/đá/gai, bóng xanh lạnh và đèn vàng. Có năm nền vẽ riêng, một outpost PNG alpha và texture đường; ảnh vũ khí/enemy tách nền từ concept có sẵn. Pixel Guard và một số tranh phối cảnh chưa đồng nhất hoàn toàn với nền; chưa có sprite-sheet animation.
-
-Nền không bake đường vào ảnh. CampaignRoad vẽ các đoạn có đầu tròn từ cùng waypoint mà navigation và placement dùng, tránh sai lệch đường vẽ/đường chạy. Cây, đá và phế tích trong ảnh viền là trang trí, không tự có collider. Các scene mặc định không có obstacle gameplay giữa bản đồ. Nếu author thêm blocker, phải đồng bộ collider/ProjectileBlocker và Rect obstacle đặt tháp.
-
-GameArtSet chứa Sprite, Size và Offset cho sáu loại enemy/phòng thủ. Size là khung tối đa, giữ tỷ lệ ảnh; hình nằm ở child visual, không đổi hitbox gốc. Material sprite unlit; các shape dùng cho HP, cảnh báo, preview và hiệu ứng là VisualFactory, vẫn là phần cần thiết của game.
-
-Feedback đang có: HP bar; dấu Alert vàng; tint xanh nhạt khi Wisp Evade; nhích hình lúc đánh base; flash base khi trúng đòn; hit tint enemy0.12 giây; chớp bắn; blast fade khoảng 0.25 giây; gem cấp tháp. Vũ khí không xoay toàn tranh theo mục tiêu; projectile xuất phát từ tâm gameplay, chưa có muzzle bone theo sprite. Không có SFX/music.
-
-HUD/camera cố định, chưa zoom/pan bằng người chơi. Sorting order chính: nền−10, viền đường−4, đường−3, vòng ô xây−1, base1, Trap2, tower3, enemy5, HP7/8, cảnh báo8, shot flash9, projectile10, range11, preview12.
-
-Nguồn và prompt AI được ghi ở [ART_PROVENANCE.md](ART_PROVENANCE.md) và `Assets/Art/Campaign/GENERATION_PROMPTS.json`. Không trình bày ảnh acquired/AI-assisted là tranh do sinh viên tự vẽ.
-
-## 12. Tổ chức hiện thực
-
-Unity 6000.6.7f1, URP 2D 17.6.0, Input System 1.20.1, Unity Test Framework 1.8.0, package 2D Sprite 1.0.0. Gameplay dùng built-in Physics2D và IMGUI; fixed timestep hiện0.02 giây. Network dùng built-in UnityWebRequest, HTTPS/JSON và Unity Gaming Services Player API; không cài thêm SDK hoặc framework AI.
-
-| Thành phần | Trách nhiệm thực tế |
-| --- | --- |
-| GameManager | Phase, clock, wave resolution, score, base failure, pause và retry |
-| CampaignMenu / CampaignHUD / CampaignProgress | UI, chuyển màn, khóa/mở màn, sao/điểm cục bộ |
-| LevelSettings / WaveDefinition / WaveSpawn | Tham số màn, danh sách wave, enemy/delay/path từng entry |
-| CampaignStage | Tên/hướng dẫn/ảnh nền, Settings và các vị trí gợi ý của màn |
-| WaveSpawner | Spawn theo lịch; giữ delay khi spawn bị chiếm |
-| EnemyPath / EnemyController | Waypoint, progress/spacing, contact approach, FSM, CPA, slow và HP |
-| BaseController | HP, contact slot, nhận damage và flash căn cứ |
-| TowerWeapon / Projectile / WeaponData | Chọn mục tiêu, nâng/bán, lead aim, projectile vật lý và AoE |
-| TowerBuildPad / PlacementSystem / WireTrap | Ô xây tháp thật, snap/occupancy/địa hình và luật Trigger/uses/slow riêng của Trap |
-| ResourceManager | Số dư, chi/cộng và income có phần lẻ |
-| GameArtSet / VisualFactory / CampaignRoad / ExplosionFlash | Sprite profile, shape cần thiết, road rendering và flash |
-| CampaignBuilder / SpriteImportUtility | Tạo phần scene/data còn thiếu và import sprite qua Editor API |
-| ProjectValidation | Kiểm tra reference, scene, wave và xuất snapshot số liệu hiện tại |
-| LeaderboardApi / LeaderboardConfig | HTTPS, anonymous session/refresh, submit/read, lỗi và cấu hình public |
-| LeaderboardOutbox / LeaderboardClient | Pending best per stage, lưu local, retry, điều phối request và UI |
-
-Data chia thành `Assets/Data/Enemies`, `Weapons`, `Levels/LevelN` và `GameArt.asset`. Menu ở `Assets/Scenes/MainMenu.unity`, các màn ở `Assets/Scenes/Levels`; runtime ở `Assets/Scripts/DodgeLine`, phần network trong thư mục Network con. Hình runtime ở `Assets/Art/Sprites`, `Assets/Art/Campaign`, `Assets/Art/Common`. Concept gốc được giữ. Cấu hình network là `Assets/Resources/LeaderboardConfig.json`. Không còn pipeline tạo/build scene graybox/beta.
-
-Menu Editor: **Tools > Dodge Line > Create Game Scenes**, **Refresh Roads In Open Scene**, **Validate Project**, **Network > Select Settings**, **Build > Windows (Local Testing)** và **Build > Web**. Create giữ tuning/scene đã có. Cả hai đầu ra gồm MainMenu và năm màn. EXE Development ở `Builds/Windows/DodgeLine.exe`; Web Release ở `Builds/Web`. `web/` là bản copy để publish Pages. Save game là PlayerPrefs, không lưu entity đang chạy vào asset; giữ nguyên key tiến trình cũ để không mất save khi đổi thư mục.
-
-CampaignSmokeCheck là bộ kiểm tra opt-in cho Editor/development player, chỉ chạy khi có cờ dòng lệnh kiểm thử riêng. Nó gửi giao dịch mua/nâng thật bằng tiền kiếm được; không tạo bot trong lần mở game bình thường. Save của kiểm thử dùng namespace riêng. Fixture combat nhỏ chỉ nằm trong test assembly, không phải các màn demo shipping.
-
-## 13. Giới hạn hiện tại và tiêu chí kiểm chứng
-
-Đã có vòng chơi solo và nội dung năm màn; chưa gọi đây là bản cân bằng/phát hành cuối. Khả năng thắng bằng chiến thuật tự động không chứng minh mọi cách đặt đều thắng hoặc độ khó tối ưu. Cần người thật kiểm tra tính đọc hiểu HUD, cách click/snap Trap, chiến thuật khác và cảm giác giữa năm màn. Chưa xác nhận FPS, máy cấu hình thấp hoặc bản build trên PC sạch.
-
-Các giới hạn authoring: số màn/routing cố định1..5; thêm màn6 cần đổi code/menu/build list. Không có merge/crossing tự động. Waypoint là world-space; kéo Transform Route không thay tọa độ. TowerBuildPad trong scene mới cấp quyền xây; sau khi dời ô phải đồng bộ thứ tự mua trong Stage để test bot còn hợp lệ. Thay ảnh/vị trí base phải giữ mép tiếp xúc nhìn thấy khớp collider.
-
-Các nhóm kiểm tra cần được giữ: CPA/spacing; projectile và AoE; AttackBase wind-up/interval/contact; targeting và tính dễ trúng khi retreat; Trap dưới enemy/gần base/đúng path/không tốn lượt cho AttackBase; đặt/nâng/bán/income; từng màn có chiến thuật mua hợp lệ thắng và không xây thì thua; pause/retry/menu/progress; không thiếu script/asset sau cleanup.
-
-Kết quả đã chạy, phạm vi build và các bước chưa được người thật xác nhận nằm trong [TEST_REPORT.md](../TEST_REPORT.md). Tài liệu này cập nhật theo code/data; khi đổi luật hoặc balance cần cập nhật bảng tương ứng và chạy lại các kiểm tra liên quan.
-
-## 14. Module network — leaderboard
-
-### 14.1 Phạm vi và dịch vụ
-
-Mỗi trận vẫn mô phỏng combat trên một máy. Network trao đổi kết quả giữa game và **Unity Gaming Services Authentication + Leaderboards** qua HTTPS/JSON. Không đồng bộ enemy, projectile hay người điều khiển. Bộ luật ô xây dùng5 bảng `dodge-line-level-1-v2` tới `dodge-line-level-5-v2`, xếp giảm dần, **Keep Best**, không buckets/tiers/reset. Bảng v1 của bản đặt tự do không dùng cho kết quả mới.
-
-Code client và UI đã hiện thực. Lượt kiểm tra ban đầu ngày 2026-11-10: đăng nhập ẩn danh thành công nhưng5 bảng trả404. Lượt kiểm tra Web UX sau đó cùng ngày đã đọc bảng màn1 thật thành công200; chưa kiểm tra lại các bảng2–5 hoặc POST điểm thật. Không coi test fixture local là xác nhận toàn bộ bảng thật đã chạy. Hướng dẫn tạo bảng và triển khai: [NETWORK_AND_DEPLOYMENT.md](NETWORK_AND_DEPLOYMENT.md).
-
-### 14.2 Danh tính và dữ liệu
-
-Lần đầu cần mạng, client tạo anonymous player. Session token lưu trong PlayerPrefs theo project/environment/version; access token chỉ giữ trong RAM và được làm mới qua session-token trước khi hết hạn. Một request bị401 được refresh và thử lại tối đa một lần. Nếu session bị từ chối, báo lỗi; không tự tạo player khác để che mất danh tính cũ. Không có tài khoản/password UI hoặc đăng nhập cùng player trên thiết bị khác.
-
-Windows và Web/browser/origin có vùng lưu riêng. Cùng nickname không làm hai profile thành một. Xóa dữ liệu client có thể mất quyền truy cập anonymous profile, nhưng không tự xóa entry đã nằm trên server. Name 2–18 ký tự sau lọc chữ/số/khoảng trắng/_/-, không có rich-text. Tên nằm trong metadata của kết quả best gửi tiếp theo; đổi tên local không tự sửa mọi entry cũ.
-
-Payload gồm score và metadata: tên hiển thị, HP, kills, thời gian combat, rulesVersion=`v2` lấy từ config. Gửi **điểm tuyệt đối**, không cộng dồn mỗi retry. Server quyết định best/rank; rank nội bộ0-based được UI hiển thị từ1. Session/name và key tiến trình cũ được giữ, nhưng hàng đợi điểm được tách theo rulesVersion. Điểm chờ cũ của bản đặt tự do không tự gửi sang v2; best local cũ vẫn có thể hiển thị và không được coi là entry online v2. Không gửi save mở khóa/entity/token quản trị lên bảng điểm.
-
-### 14.3 Gửi, hàng đợi và phục hồi
-
-```mermaid
-flowchart LR
-    V[Victory: chốt score] --> L[Lưu local progress]
-    L --> Q[Persist pending best cho màn]
-    Q --> A[Anonymous sign-in / refresh]
-    A --> P[POST absolute score]
-    P -->|Server xác nhận hợp lệ| D[Xóa pending đã gửi]
-    P -->|Lỗi / timeout| K[Giữ pending và báo Retry]
-    K --> R[Thắng tiếp hoặc mở bảng / Refresh]
-    R --> A
-    D --> G[GET Top 10 + điểm/hạng cá nhân khi mở bảng]
+```text
+Điểm hoàn thành màn = 100 × HP căn cứ còn lại + energy còn lại + 10 × số quái đã diệt
 ```
 
-Outbox giữ tối đa một kết quả best cho mỗi màn, tổng tối đa 5. Điểm mới cao hơn thay kết quả đang chờ của cùng màn. Acknowledgement của lần gửi cũ không xóa kết quả mới cao hơn vừa được thêm. Dữ liệu lưu trước khi gửi và được đọc lại khi tạo client/lần mở game sau. Sau khởi động, gửi lại khi thắng hoặc mở bảng/bấm Refresh, không poll liên tục nền.
+Điểm được chốt sau thưởng clear wave cuối. Thời gian combat được ghi kèm kết quả mạng, không nằm trong công thức điểm.
 
-Một worker điều phối request, tránh gửi đồng thời từ nhiều click. Client DontDestroyOnLoad tiếp tục request khi chuyển màn; Next stage/Retry không chờ network. Đóng overlay không hủy dữ liệu pending. Lỗi404 báo chưa cấu hình bảng; lỗi mạng/5xx giữ pending;429 đọc Retry-After và yêu cầu đợi rồi retry. Timeout mỗi request mặc định10 giây, giới hạn cấu hình1..30; network không dùng game time scale để đợi.
+| HP khi thắng | Sao |
+| --- | ---: |
+| 18–20 | 3 |
+| 10–17 | 2 |
+| 1–9 | 1 |
 
-Top 10 lấy từ server rồi lấy entry riêng, nên player ngoài Top 10 vẫn có hạng. Chưa có entry riêng trả404 được hiểu là chưa có điểm sau khi bảng đã tải thành công. Không dùng điểm local giả làm kết quả online. Account notifications do Authentication trả về có nút xem riêng khi có thông báo.
+Lưu cục bộ mức màn đã mở, số sao tốt nhất và điểm cao nhất của từng màn. Sao và điểm được giữ tốt nhất độc lập; kết quả kém hơn không ghi giảm chúng. Không cần đạt số sao nhất định để mở màn sau, chỉ cần thắng màn trước. Không mang energy, tháp, cấp nâng hoặc HP sang màn mới.
 
-### 14.4 Kiểm thử và giới hạn
+Windows và từng trình duyệt/origin có vùng lưu riêng. Không có cloud save mở màn hoặc cơ chế tiếp tục trận đang dở; xóa dữ liệu local có thể làm mất tiến trình trên thiết bị đó.
 
-Test regression của combat dùng save namespace riêng và không tự publish điểm vào bảng thật. Cờ Development cho phép trỏ tới HTTP fixture **loopback** với vùng lưu riêng; UI ghi LOCAL TEST LEADERBOARD. Fixture chỉ dùng test, không được deploy làm dịch vụ công khai. Web Release dùng endpoint Unity HTTPS mặc định và không có cờ Development này.
+#### 8.2.12. Leaderboard — Module network
 
-Hiện server nhận score/metadata từ client. Có xác thực anonymous player nhưng chưa có server chạy lại trận hoặc chống sửa điểm trên client; đây là leaderboard phục vụ module network/bản thử nghiệm, chưa là hệ thống thi đấu chống gian lận. Thay luật tính điểm/balance lớn cần version bảng mới để tránh trộn kết quả không tương đương. Score vẫn gồm energy nên chưa xác nhận công bằng cạnh tranh sau tối ưu chiến thuật.
+Mỗi màn dùng một bảng điểm riêng. Quy tắc cấu hình bảng trên dịch vụ là **điểm giảm dần và Keep Best**; client gửi điểm tuyệt đối. Client đăng nhập ẩn danh khi cần truy cập mạng. Người chơi có thể lưu tên hiển thị 2–18 ký tự gồm chữ, số, khoảng trắng, `_` và `-`; tên giống nhau không gộp hai danh tính.
 
-Các tiêu chí cần kiểm chứng: best không giảm,5 bảng độc lập, hai danh tính nhìn chung bảng, hạng ngoài Top 10, session refresh, timeout khi pause, lỗi mạng không mất kết quả, retry không cộng trùng, Defeat không gửi, overlay không xuyên click, Windows/Web và URL host thật. Trạng thái đã test và chưa test nằm ở báo cáo, không suy từ build thành công.
+Sau Victory, game lưu tiến trình local và kết quả chờ gửi rồi gửi điểm tuyệt đối lên server, kèm tên, HP, số quái đã diệt, thời gian combat và phiên bản luật. Defeat không gửi điểm. Bảng hiển thị Top 10 cùng điểm/hạng cá nhân, kể cả khi người chơi ngoài Top 10.
+
+Nếu lỗi mạng, kết quả vẫn nằm trong hàng đợi, tối đa một kết quả tốt nhất đang chờ cho mỗi màn. Có thể thử lại khi thắng tiếp hoặc mở bảng/bấm Refresh / send pending. Gửi lại không cộng dồn điểm; kết quả mới tốt hơn không bị xóa bởi xác nhận của lần gửi cũ. Chuyển màn và Retry không phải đợi request mạng hoàn tất.
+
+Leaderboard không đồng bộ combat, không khôi phục save tiến trình và không liên kết danh tính Windows với Web chỉ bằng tên hiển thị. Bản hiện tại dùng bộ luật bảng v2. Server chưa chạy lại trận để xác minh điểm hoặc chống sửa client; đây chưa phải hệ thống thi đấu có chống gian lận.
+
+### 8.3. Game Flowchart — Sơ đồ tương tác
+
+Các số trong nút tham chiếu đến mục mô tả cơ chế tương ứng.
+
+```mermaid
+flowchart TD
+    M["6.1.1 Menu / chọn màn"] --> P["8.2.1 Preparation: 15 giây"]
+    P -->|"Hết giờ hoặc Start sớm"| C["8.2.1 Combat"]
+    P --> T["8.2.4, 8.2.6 Xây / nâng / bán"]
+    T --> R["8.2.9 Cập nhật energy"]
+    C --> T
+    C --> A["8.2.4 Tháp chọn mục tiêu"]
+    A --> S["8.2.5 Đạn bay / va chạm / damage"]
+    C --> E["8.2.7, 8.2.8 Quái tiến / cảnh báo / lùi"]
+    S --> E
+    E -->|"HP bằng 0"| K["8.2.9 Bounty / tăng kills"]
+    K --> R
+    E -->|"Chạm căn cứ"| B["8.2.2 AttackBase / giảm HP"]
+    B -->|"HP căn cứ bằng 0"| D["6.1.9 Defeat"]
+    C --> Q{"8.2.1 Hết lịch spawn và hết quái?"}
+    Q -->|"Chưa"| C
+    Q -->|"Có; căn cứ còn HP"| W["8.2.9 Thưởng clear wave"]
+    W --> F{"8.2.1 Wave cuối?"}
+    F -->|"Chưa"| P
+    F -->|"Rồi"| V["6.1.8 Victory"]
+    V --> L["8.2.11 Lưu sao / điểm / mở màn"]
+    L --> N["8.2.12 Gửi kết quả leaderboard"]
+    V -->|"Màn tiếp / chơi lại"| P
+    D -->|"Chơi lại"| P
+    V -->|"Menu"| M
+    D -->|"Menu"| M
+```
+
+Chơi lại tạo Preparation mới của màn hiện tại; chọn Next stage tạo Preparation của màn kế nếu đã mở. Gửi leaderboard là công việc nền, không bắt người chơi chờ trước khi chuyển màn.
+
+### 8.4. Player Definition — Định nghĩa người chơi
+
+#### 8.4.1. Player Definitions — Vai trò và hành động
+
+Người chơi là chỉ huy nhìn toàn bản đồ, điều khiển gián tiếp thông qua công trình. Có thể đặt, chọn, nâng cấp và bán phòng thủ; quyết định bắt đầu wave sớm; tạm dừng, chơi lại và chọn màn đã mở. Không trực tiếp chọn mục tiêu từng phát hoặc điều khiển đường bay của đạn.
+
+Không có thuộc tính HP của avatar, túi đồ hoặc vật phẩm tiêu hao riêng. Căn cứ, energy và mạng lưới phòng thủ là các tài sản quyết định trận đấu.
+
+#### 8.4.2. Player Properties — Thuộc tính và phản hồi
+
+| Thuộc tính | Thay đổi bởi | Phản hồi cho người chơi |
+| --- | --- | --- |
+| HP căn cứ | Đòn đánh sau tiếp xúc của quái | Số HP trên HUD, căn cứ chớp khi nhận đòn, màn Defeat khi về 0 |
+| Energy | Income, bounty, thưởng wave, xây/nâng/bán | Số dư HUD và trạng thái đủ/thiếu tiền của giao dịch |
+| Phòng thủ đã xây | Đặt mới, bán, Trap hết lượt | Công trình xuất hiện/biến mất; vòng tầm bắn hoặc vùng slow khi chọn |
+| Cấp tháp | Trả phí nâng cấp | Nhãn cấp, thông số damage/range và dấu cấp trên tháp |
+| Lượt Trap | Quái hợp lệ kích hoạt lần đầu trên Trap đó | Số lượt còn lại khi chọn; Trap biến mất khi hết lượt |
+| Tiến độ trận | Timer, spawn và tiêu diệt quái | Wave/phase/timer/số quái còn sống trên HUD |
+| Sao, điểm tốt nhất, màn mở | Kết quả chiến thắng | Màn kết quả và thông tin trên menu chọn màn |
+| Danh tính/điểm online | Đăng nhập ẩn danh, tên hiển thị và kết quả gửi | Top 10, hạng cá nhân, thông báo gửi/thử lại trên bảng online |
+
+#### 8.4.3. Player Rewards — Phần thưởng
+
+| Phần thưởng | Điều kiện | Công dụng |
+| --- | --- | --- |
+| Energy theo thời gian | Combat đang chạy | Tăng ngân sách để ứng phó trong wave |
+| Bounty | Tiêu diệt quái | Tái đầu tư vào phòng thủ |
+| Thưởng clear wave | Hết quái và lịch spawn của wave | Chuẩn bị cho wave tiếp hoặc cộng vào điểm cuối |
+| Bonus Start sớm | Bắt đầu trước khi timer hết | Đổi thời gian chuẩn bị lấy thêm 5 energy |
+| Sao và điểm tốt nhất | Hoàn thành màn | Ghi nhận hiệu quả giữ HP và quản lý tài nguyên |
+| Mở màn tiếp theo | Thắng màn trước | Tiếp cận bố cục và thử thách mới |
+
+Không có power-up nhặt trên map, hồi máu căn cứ hoặc loot ngẫu nhiên. Nâng cấp tháp là giao dịch do người chơi trả tiền, không phải phần thưởng tự động theo màn.
+
+### 8.5. User Interface (UI) — Giao diện và điều khiển
+
+#### 8.5.1. Bố cục và thông tin
+
+Menu chính hiển thị năm màn, khóa/mở, sao/điểm tốt nhất, hướng dẫn, leaderboard và thoát. HUD trận được tổ chức theo khung 1280 × 720 rồi scale theo cửa sổ:
+
+- **Thanh trên:** tên màn, HP căn cứ, energy, wave, phase, số quái, điểm, mô tả wave và nút xây/Start/Pause.
+- **Vùng giữa:** bản đồ, tuyến đường, vòng ô xây, công trình, quái, đạn, HP quái và dấu cảnh báo.
+- **Thanh dưới:** lựa chọn hiện tại, phản hồi giao dịch, thông số phòng thủ và nút Upgrade/Sell.
+- **Overlay:** pause, Victory/Defeat và lựa chọn tiếp tục phiên chơi.
+
+Preview đặt hợp lệ màu xanh, không hợp lệ màu đỏ và có lý do từ chối. Chọn tháp hiện vòng range; chọn Trap hiện vùng tác dụng. Lệnh đặt công trình dùng vùng map giữa hai thanh HUD. Khi mở leaderboard, thao tác với map bị khóa để người chơi tương tác với bảng.
+
+#### 8.5.2. Bảng điều khiển
+
+| Điều khiển | Hành động |
+| --- | --- |
+| `1` | Chọn Thorn Bow |
+| `2` | Chọn Dust Cannon; chỉ xây được từ màn 2 |
+| `3` | Chọn Wire Trap |
+| Chuột trái trên map | Đặt phòng thủ đang chọn; khi không ở chế độ xây, chọn công trình để xem |
+| Chuột phải | Hủy chế độ đặt và bỏ chọn phòng thủ |
+| Click đất trống khi không xây | Bỏ chọn công trình |
+| `U` | Nâng cấp tháp đang chọn nếu đủ tiền và chưa cấp 3 |
+| `X` | Bán phòng thủ đang chọn |
+| `Space` | Bắt đầu wave trong Preparation |
+| `P` | Pause/resume trận chưa kết thúc |
+| `Esc` | Hủy chế độ đặt; nếu không đang đặt thì pause/resume |
+| `R` | Chơi lại màn hiện tại |
+
+Các nút tương ứng trên HUD cung cấp cùng hành động. Khi pause không được đặt, nâng hoặc bán; khi kết thúc chỉ còn các lựa chọn kết quả. Không có điều khiển di chuyển nhân vật, xoay camera hoặc ngắm bắn thủ công.
+
+## Tài liệu tham chiếu và nguồn đối chiếu
+
+| Nhóm cơ chế | Nguồn trong repo |
+| --- | --- |
+| Vòng trận, energy, điểm, tiến trình | `GameManager.cs`, `ResourceManager.cs`, `CampaignStage.cs` |
+| Tháp, placement và projectile | `TowerBuildPad.cs`, `PlacementSystem.cs`, `TowerWeapon.cs`, `Projectile.cs`, `WeaponData.cs` |
+| Trap, tuyến đường và căn cứ | `WireTrap.cs`, `EnemyPath.cs`, `BaseController.cs` |
+| Enemy và AI | `EnemyController.cs`, `EnemyData.cs`, `ThreatPrediction.cs`, `WaveSpawner.cs` |
+| Giá trị và nội dung thực tế của năm màn | `Assets/Data/Enemies/`, `Assets/Data/Weapons/`, `Assets/Data/Levels/`, `Assets/Scenes/Levels/` |
+| UI và network | `CampaignMenu.cs`, `CampaignHUD.cs`, `Assets/Scripts/DodgeLine/Network/` |
+
+Các script gameplay trong bảng nằm dưới `Assets/Scripts/DodgeLine/`. Mô tả cơ chế không thay thế bằng chứng chạy thử hoặc kết luận cân bằng cuối cùng.
+
+- [Hướng dẫn chơi, mở và chỉnh project](SOLO_GAME_GUIDE.md).
+- [Cấu hình leaderboard và triển khai](NETWORK_AND_DEPLOYMENT.md).
+- [Nguồn đồ họa](ART_PROVENANCE.md).
+- [Báo cáo kiểm thử và các giới hạn đã ghi nhận](../TEST_REPORT.md).

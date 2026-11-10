@@ -12,6 +12,8 @@ Bridge WebGL nằm ở `Assets/Plugins/WebGL/DodgeLineBrowser.jslib`; HTML và J
 
 ### Theo dõi lỗi Edge tiếp diễn — Web 2026.11.11.1
 
+**Dữ liệu mới từ người dùng:**3 chuỗi bấm trên đúng canvas đều có mousedown/up/auxclick với preventedAfter=true nhưng không ghi nhận contextmenu. Người dùng đã xác nhận **Mouse Gestures tắt sẵn mà menu vẫn hiện** và **Chrome không hiện menu với cùng thao tác**. Phạm vi hiện khoanh vào Edge trên máy người dùng; chưa xác định được nguyên nhân. Không cần sửa/deploy thêm chỉ để lặp lại guard hiện có. Một phép thử tiếp theo là `edge://settings/appearance/browserBehavior` → tắt tạm **Enable Visual Search**, tải lại game và so sánh. Vị trí/nhãn đã được đối chiếu trên Edge157; chưa có bằng chứng Visual Search gây lỗi nếu chưa nhận kết quả bật/tắt. Không chỉnh registry, reset Edge hoặc xóa save. Chrome là cách chơi/trình bày đã được người dùng xác nhận hoạt động trong lúc tiếp tục điều tra Edge.
+
 Người dùng xác nhận đúng URL Pages, footer2026.11.10.2 và InPrivate vẫn có menu. Chưa xác định nguyên nhân; không coi profile sạch/headless đạt là bằng chứng lỗi trên tab người dùng đã hết.
 
 Bản2026.11.11.1 bổ sung preventDefault cho **right mousedown/mouseup/auxclick** trong khung game, ngoài contextmenu. Không stopPropagation; không cancel pointerdown vì có thể làm mất compatibility mouse events. Unity vẫn phải nhận chuột phải để bỏ chọn. Không chặn nút trái hoặc nút giữa.
