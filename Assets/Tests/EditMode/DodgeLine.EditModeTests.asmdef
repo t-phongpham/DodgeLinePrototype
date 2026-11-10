@@ -1,0 +1,6 @@
+{
+  "name": "DodgeLine.EditModeTests",
+  "references": ["DodgeLine.Runtime", "DodgeLine.Editor"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

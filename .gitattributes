@@ -1,0 +1,16 @@
+* text=auto
+*.cs text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.mjs text eol=lf
+*.ps1 text eol=crlf
+*.unity text eol=lf
+*.asset text eol=lf
+*.meta text eol=lf
+*.png binary
+*.jpg binary
+*.wasm binary
+*.unityweb binary
+*.gz binary
+*.zip binary

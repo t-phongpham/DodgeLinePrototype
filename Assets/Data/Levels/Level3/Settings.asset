@@ -1,0 +1,542 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3fd90abd9b1c8d49b9add1aaaf1bfa7, type: 3}
+  m_Name: Settings
+  m_EditorClassIdentifier: DodgeLine.Runtime::DodgeLine.PrototypeSettings
+  runner: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+  wisp: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+  ironGuard: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+  bow: {fileID: 11400000, guid: eb120647ddcffbb4fb822103b2327d9d, type: 2}
+  cannon: {fileID: 11400000, guid: 9848381ad02afd346a4f18b4c731f4be, type: 2}
+  levelNumber: 3
+  levelName: Ancient Garden
+  levelMultiplier: 1.15
+  waves:
+  - label: 8 Runners / 2 Wisps / 1 Guards - Wisps first, then pressure
+    spawns:
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 0
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 6
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+  - label: 10 Runners / 2 Wisps / 1 Guards - Wisps first, then pressure
+    spawns:
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 0
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 6
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+  - label: 12 Runners / 3 Wisps / 1 Guards - Wisps first, then pressure
+    spawns:
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 0
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 6
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+  - label: 14 Runners / 3 Wisps / 2 Guards - Wisps first, then pressure
+    spawns:
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 0
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 6
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+  - label: 16 Runners / 4 Wisps / 2 Guards - Wisps first, then pressure
+    spawns:
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 0
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 6
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+  - label: 18 Runners / 4 Wisps / 2 Guards - Wisps first, then pressure
+    spawns:
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 0
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 6
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+  - label: 20 Runners / 5 Wisps / 3 Guards - Wisps first, then pressure
+    spawns:
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 0
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 6
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+  - label: 22 Runners / 5 Wisps / 3 Guards - Wisps first, then pressure
+    spawns:
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 0
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: 27515ace62919464e91bc6e93f190d2a, type: 2}
+      delay: 3
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 6
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: c4fcb54964b29d64f821bf21e4b10793, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 2
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+    - enemy: {fileID: 11400000, guid: ce894e0b1203f1544a1796e8899ef6ed, type: 2}
+      delay: 0.9
+      pathIndex: 0
+  preparationSeconds: 15
+  startingEnergy: 150
+  incomePerSecond: 2
+  trapCost: 35
+  trapRadius: 0.8
+  slowDuration: 2
+  trapUses: 6
+  spacingBuffer: 0.05
+  senseInterval: 0.1
+  safetyMargin: 0.05
+  logDiagnostics: 0
+  square: {fileID: 21300000, guid: 7e892251eb0037247a9f5bcc1491e804, type: 3}
+  circle: {fileID: 21300000, guid: f73a1614816a1ce458df57422f095f3e, type: 3}
+  spriteMaterial: {fileID: 2100000, guid: 7bba596c4106d39449e2b383b5e1afd9, type: 2}

@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "projectId": "af360e97-8619-400d-8287-97c7d0b04335",
+  "environment": "production",
+  "rulesVersion": "v2",
+  "leaderboardIds": [
+    "dodge-line-level-1-v2",
+    "dodge-line-level-2-v2",
+    "dodge-line-level-3-v2",
+    "dodge-line-level-4-v2",
+    "dodge-line-level-5-v2"
+  ],
+  "timeoutSeconds": 10
+}

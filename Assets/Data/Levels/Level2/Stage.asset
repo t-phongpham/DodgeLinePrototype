@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c34c3179ee3f8a43a332ac595437c4e, type: 3}
+  m_Name: Stage
+  m_EditorClassIdentifier: DodgeLine.Runtime::DodgeLine.CampaignStage
+  number: 2
+  title: Twilight Crossing
+  briefing: Cannons in the central clearing cover both roads. Trap a Runner pack to bunch it up.
+  settings: {fileID: 11400000, guid: 879e36b8293baa140b034bd8bb10ed5a, type: 2}
+  background: {fileID: 21300000, guid: 528830b2850f7af41b9b7a3e515fecca, type: 3}
+  suggestedBows:
+  - {x: 5, y: 0}
+  - {x: -4, y: 0}
+  - {x: 5, y: 2.5}
+  - {x: 5, y: -2.5}
+  - {x: 2, y: 2.5}
+  - {x: 2, y: -2.5}
+  suggestedCannons:
+  - {x: -1, y: 0}
+  - {x: 2, y: 0}
+  suggestedTraps:
+  - {x: 4.5, y: 1.25}
+  - {x: 4.5, y: -1.25}

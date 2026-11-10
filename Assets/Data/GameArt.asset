@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a5df43d6d7b62f45a20b8fd37f9798d, type: 3}
+  m_Name: GameArt
+  m_EditorClassIdentifier: DodgeLine.Runtime::DodgeLine.BetaArtSet
+  runner:
+    sprite: {fileID: -2343693395358084441, guid: f41ba36de02be424dbbc357b9a4dd6af, type: 3}
+    size: {x: 0.5, y: 0.5}
+    offset: {x: 0, y: 0}
+  wisp:
+    sprite: {fileID: 1454723567850806337, guid: 4e1117487d1d2d149a4f6e7f808bf164, type: 3}
+    size: {x: 0.58, y: 0.58}
+    offset: {x: 0, y: 0}
+  ironGuard:
+    sprite: {fileID: -5488994424417160413, guid: 8670a60f755769742a14c614b923ed77, type: 3}
+    size: {x: 0.55, y: 0.6}
+    offset: {x: 0, y: 0}
+  bow:
+    sprite: {fileID: 3762094121863064865, guid: c27065e4716b511418ed6e3c3ae7ec44, type: 3}
+    size: {x: 0.68, y: 0.85}
+    offset: {x: 0, y: 0}
+  cannon:
+    sprite: {fileID: 7373917069860360251, guid: 8c18352f44f97614ab8ceaf43f26d5e5, type: 3}
+    size: {x: 0.86, y: 0.95}
+    offset: {x: 0, y: 0}
+  trap:
+    sprite: {fileID: -3725819688300411549, guid: e62f3398e9790db438942f159e5609fd, type: 3}
+    size: {x: 0.65, y: 0.55}
+    offset: {x: 0, y: 0}

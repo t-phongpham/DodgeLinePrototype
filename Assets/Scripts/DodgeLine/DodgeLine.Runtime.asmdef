@@ -1,0 +1,5 @@
+{
+  "name": "DodgeLine.Runtime",
+  "references": ["Unity.InputSystem"],
+  "rootNamespace": "DodgeLine"
+}

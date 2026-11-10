@@ -1,0 +1,5 @@
+{
+  "name": "DodgeLine.PlayModeTests",
+  "references": ["DodgeLine.Runtime", "Unity.InputSystem"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c34c3179ee3f8a43a332ac595437c4e, type: 3}
+  m_Name: Stage
+  m_EditorClassIdentifier: DodgeLine.Runtime::DodgeLine.CampaignStage
+  number: 1
+  title: Forest Road
+  briefing: Build two bows, keep one near the outpost. Upgrade before the armored wave.
+  settings: {fileID: 11400000, guid: 569c96c37c967bc4da8897fd9c21aec2, type: 2}
+  background: {fileID: 21300000, guid: 6adc23b4d8e71ef4790333c649806ad4, type: 3}
+  suggestedBows:
+  - {x: -1, y: 1.5}
+  - {x: 5, y: 1.5}
+  - {x: 2, y: -1.5}
+  - {x: -4, y: -1.5}
+  - {x: 5, y: -1.5}
+  suggestedCannons: []
+  suggestedTraps:
+  - {x: 0, y: 0}
+  - {x: 4, y: 0}
