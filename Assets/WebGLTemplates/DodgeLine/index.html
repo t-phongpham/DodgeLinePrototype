@@ -9,6 +9,8 @@
     main{width:min(1280px,96vw,calc((100vh - 110px)*16/9))}header,footer{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0}h1{font-size:22px;margin:0}
     #game{position:relative;aspect-ratio:16/9;background:#080e0d;border:1px solid #435549}canvas{width:100%;height:100%;display:block;outline:0}#loading{position:absolute;inset:0;display:grid;place-content:center;text-align:center;background:#0c1413}progress{width:260px;margin:12px auto;accent-color:#c6a753}
     button{background:#263b30;color:#f5edcf;border:1px solid #7a875d;border-radius:5px;padding:8px 16px;cursor:pointer}footer{color:#a8b4ab;font-size:14px}#error{white-space:pre-wrap;max-width:90%;color:#ffd0b0}a{color:#e1c77e}
+    dialog{max-width:min(460px,90vw);background:#17271e;color:#f5edcf;border:1px solid #c6a753;border-radius:8px;padding:28px}dialog::backdrop{background:#000b}dialog h2{margin-top:0}dialog p{line-height:1.5}.actions{display:flex;justify-content:flex-end;gap:12px;margin-top:24px}button:focus-visible{outline:3px solid #e1c77e;outline-offset:3px}
+    #closed{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:24px;background:#0c1413}#closed[hidden]{display:none}#closed p{max-width:520px;line-height:1.5}
   </style>
 </head>
 <body>
@@ -17,9 +19,16 @@
     <div id="game">
       <canvas id="unity-canvas" width="{{{ WIDTH }}}" height="{{{ HEIGHT }}}" tabindex="0" aria-label="Dodge Line game"></canvas>
       <div id="loading"><strong>Entering Mist Valley...</strong><progress id="progress" max="1" value="0"></progress><span id="error"></span></div>
+      <section id="closed" hidden aria-live="polite"><h2>Game closed</h2><p>Your browser kept this tab open. You can close it yourself, or reopen Dodge Line below.</p><button id="reopen">Play again</button></section>
     </div>
     <footer><span>Mouse &amp; keyboard · 1/2/3 build · Space start · P pause</span><span>Five stages · Online leaderboard</span></footer>
   </main>
+  <dialog id="quit-dialog" aria-labelledby="quit-title" aria-describedby="quit-description">
+    <h2 id="quit-title">Quit Dodge Line?</h2>
+    <p id="quit-description">Close this game tab? If your browser keeps the tab open, the game will stop instead. Completed-stage progress stays saved in this browser.</p>
+    <div class="actions"><button id="quit-cancel" autofocus>No, keep playing</button><button id="quit-confirm">Yes, quit</button></div>
+  </dialog>
+  <script src="browser-controls.js"></script>
   <script src="Build/{{{ LOADER_FILENAME }}}"></script>
   <script>
     window.dodgeLineReady = false;

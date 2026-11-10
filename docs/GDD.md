@@ -12,7 +12,7 @@ Tài liệu này phản ánh code runtime, scene và data asset hiện tại c�
 
 **Trải nghiệm cần tạo:** người chơi vừa chặn lính giữa đường, vừa giữ hỏa lực ở tuyến cuối. Tốc độ projectile và chuyển động thật quyết định hit/miss; cảnh báo né không tạo miễn sát thương. Vị trí đặt tháp, cụm enemy, slow và thời điểm nâng cấp cùng ảnh hưởng kết quả.
 
-**Nội dung hiện có:** một người chơi, năm màn, một căn cứ mỗi màn, ba loại enemy, hai loại tháp nâng tới cấp 3 và một loại trap. Có menu, hướng dẫn, chọn/mở khóa màn, pause, retry, kết quả, sao và điểm cao lưu cục bộ. Module network là leaderboard HTTPS: đăng nhập ẩn danh, gửi best score, Top 10/hạng cá nhân, hàng đợi điểm và retry. Các bảng Unity Cloud cần được tạo theo mục 14 trước khi sử dụng dịch vụ thật.
+**Nội dung hiện có:** một người chơi, năm màn, một căn cứ mỗi màn, ba loại enemy, hai loại tháp nâng tới cấp 3 và một loại trap. Có menu, hướng dẫn, chọn/mở khóa màn, pause, retry, kết quả, sao và điểm cao lưu cục bộ. Module network là leaderboard HTTPS: đăng nhập ẩn danh, gửi best score, Top 10/hạng cá nhân, hàng đợi điểm và retry. Cấu hình bảng Unity Cloud theo mục 14; trạng thái kiểm chứng dịch vụ được ghi trong TEST_REPORT.md.
 
 **Ngoài bản hiện tại:** Shadow Matriarch hoặc boss khác; âm thanh; sprite animation đi/bắn/chết đầy đủ; controller/touch; cloud save tiến trình; menu cài đặt và hệ thống tutorial theo từng wave. Thiết kế chỉ có một người điều khiển mỗi trận; các người chơi cạnh tranh gián tiếp qua bảng điểm.
 
@@ -43,7 +43,7 @@ Giữa các wave cùng màn: giữ HP, tiền, tháp, cấp nâng, Trap và lư�
 | --- | --- |
 | 1 / 2 / 3 | Chọn Thorn Bow / Dust Cannon / Wire Trap; Cannon chỉ xây từ màn 2 |
 | Click trái trên map | Đặt phòng thủ đang chọn; khi không ở chế độ đặt thì chọn tháp/Trap để xem |
-| Click phải | Hủy đặt hoặc bỏ chọn, không mất tiền |
+| Click phải | Hủy đặt hoặc bỏ chọn, không mất tiền; bản Web chặn menu trình duyệt trong khung game |
 | Esc | Hủy chế độ đặt; khi không đang đặt thì pause/resume |
 | U | Nâng tháp được chọn, tối đa cấp 3; cần đủ tiền |
 | X | Bán phòng thủ được chọn; Trap không có nâng cấp |
@@ -56,7 +56,9 @@ Pause dừng thời gian mô phỏng, chuyển động, projectile, slow/cooldow
 
 ### 2.3 UI hiện tại
 
-Main menu có năm nút màn, trạng thái khóa, sao/điểm cao nhất, How to play và Quit. Màn sau mở khi thắng màn trước. Quit tác dụng trên bản standalone; trong Editor dừng Play bằng nút Play của Unity.
+Main menu có năm nút màn, trạng thái khóa, sao/điểm cao nhất, How to play và Quit. Màn sau mở khi thắng màn trước. Quit đóng ứng dụng trên bản standalone; trong Editor dừng Play bằng nút Play của Unity.
+
+Trên Web, Quit mở hộp thoại HTML xác nhận: No hoặc Esc đóng hộp thoại và trả focus về canvas; Yes yêu cầu đóng tab qua window.close trực tiếp từ click. Nếu trình duyệt từ chối, Unity player được dừng bằng Quit(), canvas ẩn và trang hiện Game closed / Play again. Play again tải lại trang; không resume trận đang dở. Website không thể bảo đảm đóng mọi tab người dùng mở. Chuột phải chỉ chặn contextmenu trong khung game; Unity vẫn nhận input để hủy/bỏ chọn, còn ngoài khung vẫn có menu trình duyệt.
 
 Menu và kết quả Victory có nút **Online leaderboard**. Bảng dùng overlay nền kín riêng, chọn1..5 để xem Top 10 và hạng cá nhân, đổi tên hiển thị cục bộ và Refresh/send pending. Khi overlay mở, ẩn menu/HUD phía sau và khóa input đặt công trình. Không mở bảng trong combat qua phím tắt; không cần pause trận đang chơi để tải bảng.
 
@@ -367,7 +369,7 @@ Kết quả đã chạy, phạm vi build và các bước chưa được ngườ
 
 Mỗi trận vẫn mô phỏng combat trên một máy. Network trao đổi kết quả giữa game và **Unity Gaming Services Authentication + Leaderboards** qua HTTPS/JSON. Không đồng bộ enemy, projectile hay người điều khiển. Bộ luật ô xây dùng5 bảng `dodge-line-level-1-v2` tới `dodge-line-level-5-v2`, xếp giảm dần, **Keep Best**, không buckets/tiers/reset. Bảng v1 của bản đặt tự do không dùng cho kết quả mới.
 
-Code client và UI đã hiện thực. Kiểm tra dịch vụ thật ngày 2026-11-10: project đăng nhập ẩn danh thành công, nhưng5 bảng cần tạo trong Dashboard vì trả404. Không coi test fixture local là xác nhận bảng thật đã chạy. Hướng dẫn tạo bảng và triển khai: [NETWORK_AND_DEPLOYMENT.md](NETWORK_AND_DEPLOYMENT.md).
+Code client và UI đã hiện thực. Lượt kiểm tra ban đầu ngày 2026-11-10: đăng nhập ẩn danh thành công nhưng5 bảng trả404. Lượt kiểm tra Web UX sau đó cùng ngày đã đọc bảng màn1 thật thành công200; chưa kiểm tra lại các bảng2–5 hoặc POST điểm thật. Không coi test fixture local là xác nhận toàn bộ bảng thật đã chạy. Hướng dẫn tạo bảng và triển khai: [NETWORK_AND_DEPLOYMENT.md](NETWORK_AND_DEPLOYMENT.md).
 
 ### 14.2 Danh tính và dữ liệu
 

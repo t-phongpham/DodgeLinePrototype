@@ -6,7 +6,7 @@ Game hiện chỉ có một chiến dịch 5 màn. Module network là **leaderbo
 
 Bộ luật hiện tại là **v2: chỉ xây tháp trong vòng vàng**. Dùng5 ID v2 dưới đây. Nếu đã tạo bảng v1, giữ nó làm dữ liệu cũ; không dùng bảng đó cho bản sửa này. Token/danh tính và tiến trình local giữ nguyên, còn outbox điểm tách theo rulesVersion để không gửi kết quả đặt tự do cũ lên v2.
 
-Client đã có code gửi/đọc điểm, giữ điểm chưa gửi, retry và UI. Lúc kiểm tra ngày 2026-11-10, đăng nhập ẩn danh của project đã thành công nhưng cả 5 leaderboard dưới đây trả404. Cần tạo chúng trong Dashboard trước khi xác nhận gửi/đọc điểm trên dịch vụ thật.
+Client đã có code gửi/đọc điểm, giữ điểm chưa gửi, retry và UI. Lượt kiểm tra ban đầu ngày 2026-11-10 đăng nhập thành công nhưng cả5 bảng trả404. Lượt Web UX sau đó cùng ngày đã GET bảng màn1 v2 thành công200; chưa kiểm tra lại bảng2–5 hoặc POST điểm thật. Các bước dưới đây áp dụng cho bảng chưa tạo; giữ bảng đã tạo đúngID, không cần xóa/tạo lại.
 
 1. Mở [Unity Dashboard](https://cloud.unity.com/), đăng nhập tài khoản có quyền project **DodgeLinePrototype** trong organization **phongphmthanh**.
 2. Kiểm tra Project ID là **af360e97-8619-400d-8287-97c7d0b04335**, environment **production**.
@@ -103,6 +103,8 @@ powershell -ExecutionPolicy Bypass -File tools/Prepare-Web.ps1
 6. Thử lại leaderboard trên URL thật. Thắng bằng Windows rồi xem bảng ở Web; dùng tên khác ở Web để phân biệt hai danh tính.
 
 Mỗi lần đổi code/art/config: **Build Web → Prepare-Web → commit web/ → push**. Chỉ push source C# không làm game trên Pages tự cập nhật. [Hướng dẫn GitHub Pages Actions](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+
+Hướng dẫn từng bước commit bằng GitHub Desktop và tên commit cho đợt cải thiện Quit/chuột phải: [WEB_UPDATE_GUIDE.md](WEB_UPDATE_GUIDE.md). Bản Web có hộp thoại Quit riêng; nếu trình duyệt không cho đóng tab, game dừng và hiện trang Game closed. Chuột phải trong khung canvas hủy/bỏ chọn mà không mở menu trình duyệt.
 
 ## 6. Demo module network cho giảng viên
 

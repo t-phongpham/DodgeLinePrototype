@@ -7,6 +7,21 @@ namespace DodgeLine
         public CampaignStage[] stages;
         private bool help;
         private GUIStyle title, text, button;
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        private static extern void DodgeLine_RequestQuit();
+#endif
+
+        private static void QuitGame()
+        {
+            PlayerPrefs.Save();
+#if UNITY_WEBGL && !UNITY_EDITOR
+            DodgeLine_RequestQuit();
+#else
+            Application.Quit();
+#endif
+        }
+
         private void Awake() { Time.timeScale = 1; Network.LeaderboardClient.Ensure(); }
         private void OnGUI()
         {
@@ -49,7 +64,7 @@ namespace DodgeLine
             }
             if (GUI.Button(new Rect(90, 605, 350, 52), help ? "Back to campaign" : "How to play", button)) help = !help;
             if (GUI.Button(new Rect(460, 605, 350, 52), "Online leaderboard", button)) Network.LeaderboardClient.Ensure().Open();
-            if (GUI.Button(new Rect(830, 605, 350, 52), "Quit game", button)) Application.Quit();
+            if (GUI.Button(new Rect(830, 605, 350, 52), "Quit game", button)) QuitGame();
             GUI.enabled = true;
         }
     }

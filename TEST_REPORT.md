@@ -1,4 +1,33 @@
-# Kiểm thử ô xây tháp v2 — 2026-11-10
+# Kiểm thử Dodge Line
+
+## Web UX — 2026-11-10
+
+Thêm README cho người chơi, hộp thoại Quit Web qua bridge `.jslib`, dừng Unity nếu trình duyệt chặn đóng tab, nút Play again, và chặn contextmenu riêng trong vùng game. Không đổi luật chiến đấu, chỉ số, map hoặc phiên bản leaderboard v2. Windows giữ Application.Quit; đợt này không build lại EXE.
+
+Đã build Web Release bằng Unity6000.6.7f1 trên project gốc: **Build Finished, Result: Success**, Editor thoát code0; log `TestResults/WebUX-2026-11-10/build-web.log`. Không thấy C# error/warning hoặc shader compilation error trong log. Node kiểm tra cú pháp JavaScript thành công.
+
+Chrome headless/SwiftShader chạy chính bản build qua HTTP localhost, sử dụng input chuột/phím CDP. Kết quả cuối: `TestResults/WebUX-2026-11-10/Browser2/browser-check.json`, process exit0, không uncaught JS/WASM exception.
+
+| Hành vi kiểm tra | Kết quả |
+| --- | --- |
+| Nút Quit thực trong Unity → IL2CPP → jslib → hộp thoại HTML | Đạt |
+| No và Esc hủy Quit, game tiếp tục và canvas nhận lại focus | Đạt |
+| Chuột phải trên canvas không mở menu trình duyệt | Đạt, contextmenu đã bị preventDefault |
+| Hủy chế độ xây bằng chuột phải rồi click ô hợp lệ khác | Không xây thêm, energy giữ nguyên |
+| Chọn tháp rồi chuột phải bỏ chọn | Đã xem ảnh range/HUD được bỏ chọn |
+| Menu chuột phải bên ngoài vùng game | Không bị chặn, kiểm tra bằng DOM event |
+| Yes khi tab có lịch sử và Chrome từ chối đóng | Unity Quit hoàn tất, canvas ẩn, Game closed hiển thị |
+| Play again sau khi đóng game | Tải lại Unity và menu thành công |
+| Yes trong tab mở bằng window.open | Tab thật biến mất khỏi danh sách Chrome targets |
+| Menu/leaderboard overlay, luật pad, mua tháp, bắt đầu wave, pause/retry | Đạt smoke check |
+
+Đã xem ảnh hộp thoại và trạng thái đóng; bản sao dễ xem ở `DebugCaptures/Web_QuitConfirmation.png`, `Web_GameClosed.png`, `Web_RightClickDeselected.png`. Lượt kiểm tra ban đầu dùng hash ảnh vùng energy bị ảnh hưởng bởi vòng preview vẽ đè HUD; đã sửa công cụ để đưa chuột ra khỏi map trước khi so sánh rồi chạy lại đạt. Đây không phải lỗi mất energy do chuột phải.
+
+Lượt này Authentication thật200, GET bảng màn1 v2 thật200; GET entry của tài khoản kiểm thử mới404 vì chưa có điểm là bình thường. Không POST điểm test lên Cloud; chưa kiểm tra lại các bảng2–5 hoặc gửi điểm trên dịch vụ thật. Các ghi nhận404 ở đợt ô xây phía dưới là kết quả lịch sử, không phải trạng thái mới của bảng màn1.
+
+Đã chạy Prepare-Web để cập nhật `web/` từ bản build mới và đối chiếu file. Chưa commit/push/deploy thay người dùng. Chưa chạy trên URL Pages công khai với thay đổi mới, Firefox/Edge/Safari, fullscreen hoặc thiết bị cảm ứng. Không chạy lại EditMode/PlayMode hay chơi hết5 màn trong đợt Web UX; các kết quả gameplay bên dưới thuộc đợt trước.
+
+## Lịch sử: ô xây tháp v2 — 2026-11-10
 
 Sửa yêu cầu chỉ được đặt Bow/Cannon trong các vòng chỉ định của map. Vòng cũ chỉ là hình gợi ý; PlacementSystem trước đây kiểm tra đất/đường và cho đặt tự do. Đợt này biến chúng thành TowerBuildPad thật, click trong vòng snap về tâm, mỗi ô một tháp, dùng chung loại vũ khí và bán để giải phóng ô. Trap giữ luật ô đường riêng.
 

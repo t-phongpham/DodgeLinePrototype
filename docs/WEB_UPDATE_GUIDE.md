@@ -1,0 +1,51 @@
+# Cập nhật Dodge Line trên GitHub Pages
+
+## Thay đổi giao diện Web — 2026-11-10
+
+- README giới thiệu game, luật chơi, điều khiển, chiến dịch và leaderboard.
+- Quit game trên Web mở hộp thoại xác nhận riêng của website. No hoặc Esc quay lại menu. Yes gọi `window.close()` trực tiếp từ click người dùng.
+- Trình duyệt có thể từ chối đóng tab, nhất là tab mở thủ công và có lịch sử điều hướng. Khi đó Unity player được dừng bằng `Quit()` và hiện Game closed / Play again. Không thể bảo đảm website được phép đóng mọi tab. Tham khảo [MDN Window.close](https://developer.mozilla.org/en-US/docs/Web/API/Window/close).
+- Chuột phải trong khung game vẫn gửi input đến Unity để hủy xây/bỏ chọn; chỉ chặn sự kiện `contextmenu`. Chuột phải ngoài khung game vẫn dùng menu trình duyệt.
+- Windows giữ Application.Quit; không cần bản xác nhận HTML.
+
+Bridge WebGL nằm ở `Assets/Plugins/WebGL/DodgeLineBrowser.jslib`; HTML và JavaScript ở `Assets/WebGLTemplates/DodgeLine/`. File trong `web/` là đầu ra build, không sửa trực tiếp vì lần build sau sẽ ghi đè.
+
+## Commit bản đã chuẩn bị
+
+1. Mở **GitHub Desktop**, chọn repository **DodgeLinePrototype**, kiểm tra **Current branch: main** và đường dẫn `C:\DodgeLinePrototype`.
+2. Trong **Changes**, xem diff. Giữ các thay đổi source, `.meta` mới, README/docs, công cụ kiểm tra và toàn bộ thay đổi `web/`. Các file build nhị phân trong `web/Build` là cần thiết cho website.
+3. Không thêm `Library`, `Temp`, `Builds`, `TestResults` hoặc project IDE tự sinh. `.gitignore` đã loại chúng; không dùng force add.
+4. Điền **Summary**:
+
+   ```text
+   Improve Web quit flow, right-click controls and game README
+   ```
+
+5. **Description** có thể dùng:
+
+   ```text
+   Add a player-facing README and Web update instructions.
+   Confirm Web quit, request tab close, and stop Unity when browser closing is blocked.
+   Preserve right-click deselection without opening the browser context menu.
+   Include the rebuilt Web player and browser regression checks.
+   ```
+
+6. Bấm **Commit to main**, rồi **Push origin**. Nếu Desktop yêu cầu Fetch/Pull trước, lấy thay đổi remote và kiểm tra conflict trước khi push; không force push.
+7. Trên GitHub mở **Actions → Publish Dodge Line Web**. Push thay đổi `web/` trên main sẽ tự chạy workflow. Chờ job deploy xanh.
+8. Mở URL Pages từ **Settings → Pages → Visit site**. Thử Quit/No, chuột phải và Quit/Yes. Nếu còn bản cũ, kiểm tra Actions đã deploy đúng commit rồi dùng **Ctrl+Shift+R**.
+
+Không bấm Configure để tạo workflow mới: `.github/workflows/pages.yml` đã có sẵn. Source của Pages phải giữ **GitHub Actions**.
+
+## Những lần sửa tiếp theo
+
+1. Lưu scene và dừng Play trong Unity.
+2. Chọn **Tools → Dodge Line → Build → Web**, đợi build thành công.
+3. Mở PowerShell tại `C:\DodgeLinePrototype` và chạy:
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File tools/Prepare-Web.ps1
+   ```
+
+4. Review, commit và push như trên. Chỉ commit source C# chưa làm bản game trên website đổi theo.
+
+Đợt này bản Web được chuẩn bị trong workspace; kết quả kiểm tra thực tế nằm ở [TEST_REPORT.md](../TEST_REPORT.md). Không cần build lại nếu không sửa thêm sau bản đã chuẩn bị. Windows là đầu ra riêng và chỉ cần build Windows khi bạn muốn cập nhật EXE.
